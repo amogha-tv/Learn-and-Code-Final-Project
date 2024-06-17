@@ -13,11 +13,15 @@ public class RecommendationService {
         this.recommendationDAO = new RecommendationDAO();
     }
 
+    public void addRecommendation(Recommendation recommendation) throws SQLException, ClassNotFoundException {
+        recommendationDAO.addRecommendation(recommendation);
+    }
+
     public List<Recommendation> getAllRecommendations() throws SQLException, ClassNotFoundException {
         return recommendationDAO.getAllRecommendations();
     }
 
-    public void addRecommendation(Recommendation recommendation) throws SQLException, ClassNotFoundException {
-        recommendationDAO.addRecommendation(recommendation);
+    public void clearRecommendations() throws SQLException, ClassNotFoundException {
+        recommendationDAO.clearRecommendations();
     }
 }

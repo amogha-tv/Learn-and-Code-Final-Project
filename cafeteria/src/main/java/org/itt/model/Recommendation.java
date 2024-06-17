@@ -11,11 +11,22 @@ public class Recommendation implements Serializable {
     private String itemName;
     private String recommenderName;
 
+    public Recommendation() {}
+
     public Recommendation(int recommendationId, int menuItemId, int recommendedBy, Date recommendationDate) {
         this.recommendationId = recommendationId;
         this.menuItemId = menuItemId;
         this.recommendedBy = recommendedBy;
         this.recommendationDate = recommendationDate;
+    }
+
+    public Recommendation(int recommendationId, int menuItemId, int recommendedBy, Date recommendationDate, String itemName, String recommenderName) {
+        this.recommendationId = recommendationId;
+        this.menuItemId = menuItemId;
+        this.recommendedBy = recommendedBy;
+        this.recommendationDate = recommendationDate;
+        this.itemName = itemName;
+        this.recommenderName = recommenderName;
     }
 
     public int getRecommendationId() {
@@ -64,10 +75,5 @@ public class Recommendation implements Serializable {
 
     public void setRecommenderName(String recommenderName) {
         this.recommenderName = recommenderName;
-    }
-
-    @Override
-    public String toString() {
-        return String.format("%-5d %-20s %-20s %-15s", recommendationId, itemName, recommenderName, recommendationDate);
     }
 }
