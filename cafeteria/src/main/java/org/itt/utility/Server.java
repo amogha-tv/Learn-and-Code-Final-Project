@@ -1,18 +1,18 @@
 package org.itt.utility;
 
 import java.io.IOException;
+import java.io.ObjectOutputStream;
 import java.net.ServerSocket;
 import java.net.Socket;
-import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 public class Server {
-
-    private static final int PORT = 8080;
+    private static final int PORT = 12345;
     private static final int THREAD_POOL_SIZE = 10;
-    private static List<ServerThread> clients = new ArrayList<>();
+    private static final List<ObjectOutputStream> clientOutputStreams = new CopyOnWriteArrayList<>();
 
     public static void main(String[] args) {
         ExecutorService executorService = Executors.newFixedThreadPool(THREAD_POOL_SIZE);
@@ -24,19 +24,35 @@ public class Server {
                 Socket socket = serverSocket.accept();
                 System.out.println("New client connected");
 
-                ServerThread serverThread = new ServerThread(socket, clients);
-                clients.add(serverThread);
+                ObjectOutputStream outputStream = new ObjectOutputStream(socket.getOutputStream());
+                addClientOutputStream(outputStream);
+
+                ServerThread serverThread = new ServerThread(socket, outputStream);
                 executorService.execute(serverThread);
             }
-
         } catch (IOException e) {
             e.printStackTrace();
+        } finally {
+            executorService.shutdown();
         }
     }
 
     public static void notifyClients(String message) {
-        for (ServerThread client : clients) {
-            client.sendMessage(message);
+        for (ObjectOutputStream outputStream : clientOutputStreams) {
+            try {
+                outputStream.writeObject(message);
+                outputStream.flush();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
         }
+    }
+
+    public static void addClientOutputStream(ObjectOutputStream outputStream) {
+        clientOutputStreams.add(outputStream);
+    }
+
+    public static void removeClientOutputStream(ObjectOutputStream outputStream) {
+        clientOutputStreams.remove(outputStream);
     }
 }

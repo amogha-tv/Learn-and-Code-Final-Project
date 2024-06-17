@@ -1,34 +1,42 @@
 package org.itt.utility;
 
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.PrintWriter;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.net.Socket;
-import java.util.Scanner;
 
 public class Client {
+    private static ObjectOutputStream outputStream;
+    private static ObjectInputStream inputStream;
+    private static Socket socket;
 
     public static void main(String[] args) {
-        try (Socket socket = new Socket("localhost", 8080);
-             PrintWriter out = new PrintWriter(socket.getOutputStream(), true);
-             BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-             Scanner scanner = new Scanner(System.in)) {
+        try {
+            socket = new Socket("localhost", 12345);
+            outputStream = new ObjectOutputStream(socket.getOutputStream());
+            inputStream = new ObjectInputStream(socket.getInputStream());
 
-            System.out.println("Connected to the server.");
-            String response;
-            while ((response = in.readLine()) != null) {
-                System.out.println(response);
-                if (response.equalsIgnoreCase("bye")) {
-                    break;
-                }
-
-                String input = scanner.nextLine();
-                out.println(input);
-            }
+            CafeteriaApp app = new CafeteriaApp();
+            app.run();
 
         } catch (IOException e) {
             e.printStackTrace();
+        } finally {
+            try {
+                if (outputStream != null) outputStream.close();
+                if (inputStream != null) inputStream.close();
+                if (socket != null) socket.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
         }
+    }
+
+    public static ObjectOutputStream getOutputStream() {
+        return outputStream;
+    }
+
+    public static ObjectInputStream getInputStream() {
+        return inputStream;
     }
 }

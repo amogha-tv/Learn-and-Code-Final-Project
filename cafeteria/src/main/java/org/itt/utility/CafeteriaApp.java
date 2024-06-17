@@ -83,7 +83,7 @@ public class CafeteriaApp {
                     } else if (option == currentIndex++) {
                         viewFeedback();
                     } else if (authService.isAuthorized(user, "Employee") && option == currentIndex++) {
-                        viewNotifications();
+                        viewUnreadNotifications(user.getUserId());
                     } else if (authService.isAuthorized(user, "Employee") && option == currentIndex++) {
                         viewRecommendations();
                     } else if (authService.isAuthorized(user, "Employee") && option == currentIndex++) {
@@ -125,9 +125,10 @@ public class CafeteriaApp {
         displayFeedbacks(feedbacks);
     }
 
-    private void viewNotifications() throws SQLException, ClassNotFoundException {
-        List<Notification> notifications = notificationService.getAllNotifications();
-        notifications.forEach(System.out::println);
+    private void viewUnreadNotifications(int userId) throws SQLException, ClassNotFoundException {
+        List<Notification> notifications = notificationService.getUnreadNotifications(userId);
+        displayNotifications(notifications);
+        notificationService.markNotificationsAsRead(userId);
     }
 
     private void viewRecommendations() throws SQLException, ClassNotFoundException {
@@ -150,7 +151,8 @@ public class CafeteriaApp {
         java.sql.Date dateOfFeedback = java.sql.Date.valueOf(feedbackDateStr);
         Feedback feedback = new Feedback(0, user.getUserId(), feedbackMenuItemId, comment, rating, dateOfFeedback);
         feedbackService.addFeedback(feedback);
-        notificationService.addNotification(new Notification(0, user.getUserId(), "Feedback added for Menu Item ID: " + feedbackMenuItemId, new java.sql.Timestamp(System.currentTimeMillis())));
+        Notification notification = new Notification(0, user.getUserId(), "Feedback added for Menu Item ID: " + feedbackMenuItemId, new java.sql.Timestamp(System.currentTimeMillis()), false);
+        notificationService.addNotificationForAllEmployees(notification);
         System.out.println("Feedback added.");
     }
 
@@ -167,7 +169,8 @@ public class CafeteriaApp {
         java.sql.Date menuDate = java.sql.Date.valueOf(dateStr);
         MenuItem menuItem = new MenuItem(0, name, price, availability, menuDate);
         menuService.addMenuItem(menuItem);
-        notificationService.addNotification(new Notification(0, user.getUserId(), "Menu Item added: " + name, new java.sql.Timestamp(System.currentTimeMillis())));
+        Notification notification = new Notification(0, user.getUserId(), "Menu Item added: " + name, new java.sql.Timestamp(System.currentTimeMillis()), false);
+        notificationService.addNotificationForAllEmployees(notification);
         System.out.println("Menu Item added.");
     }
 
@@ -187,7 +190,8 @@ public class CafeteriaApp {
         java.sql.Date menuDate = java.sql.Date.valueOf(dateStr);
         MenuItem menuItem = new MenuItem(menuItemId, name, price, availability, menuDate);
         menuService.updateMenuItem(menuItem);
-        notificationService.addNotification(new Notification(0, user.getUserId(), "Menu Item updated: " + name, new java.sql.Timestamp(System.currentTimeMillis())));
+        Notification notification = new Notification(0, user.getUserId(), "Menu Item updated: " + name, new java.sql.Timestamp(System.currentTimeMillis()), false);
+        notificationService.addNotificationForAllEmployees(notification);
         System.out.println("Menu Item updated.");
     }
 
@@ -195,7 +199,8 @@ public class CafeteriaApp {
         System.out.print("Enter Menu Item ID to delete: ");
         int menuItemId = scanner.nextInt();
         menuService.deleteMenuItem(menuItemId);
-        notificationService.addNotification(new Notification(0, user.getUserId(), "Menu Item deleted: " + menuItemId, new java.sql.Timestamp(System.currentTimeMillis())));
+        Notification notification = new Notification(0, user.getUserId(), "Menu Item deleted: " + menuItemId, new java.sql.Timestamp(System.currentTimeMillis()), false);
+        notificationService.addNotificationForAllEmployees(notification);
         System.out.println("Menu Item deleted.");
     }
 
@@ -208,11 +213,14 @@ public class CafeteriaApp {
         String role = scanner.nextLine();
         User newUser = new User(0, username, role, userPassword);
         authService.addUser(newUser);
-        notificationService.addNotification(new Notification(0, user.getUserId(), "New user added: " + username, new java.sql.Timestamp(System.currentTimeMillis())));
+        Notification notification = new Notification(0, user.getUserId(), "New user added: " + username, new java.sql.Timestamp(System.currentTimeMillis()), false);
+        notificationService.addNotificationForAllEmployees(notification);
         System.out.println("User added.");
     }
 
     private void rollOutRecommendations(User user) throws SQLException, ClassNotFoundException {
+        recommendationService.clearRecommendations();
+
         System.out.print("Enter number of items to recommend: ");
         int numberOfItems = scanner.nextInt();
         scanner.nextLine(); // Consume newline
@@ -228,7 +236,8 @@ public class CafeteriaApp {
             recommendationService.addRecommendation(recommendation);
             menuItemIds.add(menuItemId);
         }
-        notificationService.addNotification(new Notification(0, user.getUserId(), "Recommendations added for the next day", new java.sql.Timestamp(System.currentTimeMillis())));
+        Notification notification = new Notification(0, user.getUserId(), "Recommendations added for the next day", new java.sql.Timestamp(System.currentTimeMillis()), false);
+        notificationService.addNotificationForAllEmployees(notification);
         System.out.println("Recommendations processed.");
     }
 
@@ -251,6 +260,14 @@ public class CafeteriaApp {
         System.out.println("-----------------------------------------------------------------------------------------------------");
         for (Feedback feedback : feedbacks) {
             System.out.printf("%-5d %-20s %-10d %-15d %-50s %-10s%n", feedback.getFeedbackId(), feedback.getItemName(), feedback.getUserId(), feedback.getRating(), feedback.getComment(), feedback.getDateOfFeedback());
+        }
+    }
+
+    private void displayNotifications(List<Notification> notifications) {
+        System.out.printf("%-50s %-30s%n", "Message", "Sent At");
+        System.out.println("--------------------------------------------------");
+        for (Notification notification : notifications) {
+            System.out.printf("%-50s %-30s%n", notification.getMessage(), notification.getSentAt());
         }
     }
 

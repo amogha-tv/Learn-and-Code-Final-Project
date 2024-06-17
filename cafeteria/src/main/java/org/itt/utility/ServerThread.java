@@ -1,57 +1,34 @@
 package org.itt.utility;
 
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.PrintWriter;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.net.Socket;
-import java.util.List;
 
 public class ServerThread implements Runnable {
+    private final Socket socket;
+    private final ObjectOutputStream outputStream;
 
-    private Socket socket;
-    private PrintWriter out;
-    private BufferedReader in;
-    private List<ServerThread> clients;
-
-    public ServerThread(Socket socket, List<ServerThread> clients) {
+    public ServerThread(Socket socket, ObjectOutputStream outputStream) {
         this.socket = socket;
-        this.clients = clients;
+        this.outputStream = outputStream;
     }
 
     @Override
     public void run() {
-        try {
-            out = new PrintWriter(socket.getOutputStream(), true);
-            in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+        try (ObjectInputStream inputStream = new ObjectInputStream(socket.getInputStream())) {
 
-            String inputLine;
-            while ((inputLine = in.readLine()) != null) {
-                System.out.println("Received: " + inputLine);
-                if (inputLine.equalsIgnoreCase("bye")) {
-                    break;
-                }
-
-                for (ServerThread client : clients) {
-                    client.sendMessage("Server response: " + inputLine);
-                }
-            }
+            // Handle client requests here
 
         } catch (IOException e) {
             e.printStackTrace();
         } finally {
             try {
-                socket.close();
-                clients.remove(this);
+                if (socket != null) socket.close();
+                Server.removeClientOutputStream(outputStream);
             } catch (IOException e) {
                 e.printStackTrace();
             }
-        }
-    }
-
-    public void sendMessage(String message) {
-        if (out != null) {
-            out.println(message);
         }
     }
 }
