@@ -4,21 +4,20 @@ import java.io.Serializable;
 import java.sql.Timestamp;
 
 public class Notification implements Serializable {
-    private static final long serialVersionUID = 1L;
-
     private int notificationId;
     private int userId;
     private String message;
     private Timestamp sentAt;
+    private boolean read;
 
-    public Notification() {
-    }
+    public Notification() {}
 
-    public Notification(int notificationId, int userId, String message, Timestamp sentAt) {
+    public Notification(int notificationId, int userId, String message, Timestamp sentAt, boolean read) {
         this.notificationId = notificationId;
         this.userId = userId;
         this.message = message;
         this.sentAt = sentAt;
+        this.read = read;
     }
 
     public int getNotificationId() {
@@ -53,13 +52,16 @@ public class Notification implements Serializable {
         this.sentAt = sentAt;
     }
 
+    public boolean isRead() {
+        return read;
+    }
+
+    public void setRead(boolean read) {
+        this.read = read;
+    }
+
     @Override
     public String toString() {
-        return "Notification{" +
-                "notificationId=" + notificationId +
-                ", userId=" + userId +
-                ", message='" + message + '\'' +
-                ", sentAt=" + sentAt +
-                '}';
+        return String.format("Notification: You have a new notification:\nMessage: %s\nSent At: %s", message, sentAt);
     }
 }
