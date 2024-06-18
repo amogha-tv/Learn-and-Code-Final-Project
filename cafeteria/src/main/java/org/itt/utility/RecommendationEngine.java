@@ -1,12 +1,14 @@
 package org.itt.utility;
 
-import org.itt.model.Feedback;
 import org.itt.model.Recommendation;
+import org.itt.model.Feedback;
 import org.itt.service.FeedbackService;
 
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
-import java.util.stream.Collectors;
+import java.util.Map;
 
 public class RecommendationEngine {
     private final FeedbackService feedbackService;
@@ -15,31 +17,30 @@ public class RecommendationEngine {
         this.feedbackService = new FeedbackService();
     }
 
-    public boolean shouldRecommend(int menuItemId) throws SQLException, ClassNotFoundException {
-        List<Feedback> feedbacks = feedbackService.getFeedbackForMenuItem(menuItemId);
-        if (feedbacks.isEmpty()) {
-            System.out.println("No feedback available for MenuItemID: " + menuItemId);
-            return false;
+    public List<Recommendation> getFilteredRecommendations(List<Recommendation> recommendations) throws SQLException, ClassNotFoundException {
+        List<Recommendation> filteredRecommendations = new ArrayList<>();
+        Map<Integer, List<Feedback>> feedbackByItem = new HashMap<>();
+
+        for (Feedback feedback : feedbackService.getAllFeedback()) {
+            feedbackByItem.computeIfAbsent(feedback.getMenuItemId(), k -> new ArrayList<>()).add(feedback);
         }
 
-        double averageRating = feedbacks.stream()
-                .mapToInt(Feedback::getRating)
-                .average()
-                .orElse(0.0);
+        for (Recommendation recommendation : recommendations) {
+            List<Feedback> feedbacks = feedbackByItem.get(recommendation.getMenuItemId());
+            if (feedbacks == null || feedbacks.isEmpty()) {
+                continue;
+            }
 
-        return averageRating > 3;
-    }
+            double averageRating = feedbacks.stream().mapToInt(Feedback::getRating).average().orElse(0);
+            long positiveSentiments = feedbacks.stream()
+                    .filter(feedback -> "positive".equals(SentimentAnalysis.analyzeSentiment(feedback.getComment())))
+                    .count();
 
-    public List<Recommendation> getFilteredRecommendations(List<Recommendation> recommendations) throws SQLException, ClassNotFoundException {
-        return recommendations.stream()
-                .filter(recommendation -> {
-                    try {
-                        return shouldRecommend(recommendation.getMenuItemId());
-                    } catch (SQLException | ClassNotFoundException e) {
-                        e.printStackTrace();
-                        return false;
-                    }
-                })
-                .collect(Collectors.toList());
+            if (averageRating > 3 && positiveSentiments >= (feedbacks.size() / 2)) {
+                filteredRecommendations.add(recommendation);
+            }
+        }
+
+        return filteredRecommendations;
     }
 }
