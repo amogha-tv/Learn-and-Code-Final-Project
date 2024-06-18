@@ -9,16 +9,19 @@ public class Notification implements Serializable {
     private String message;
     private Timestamp sentAt;
     private boolean read;
+    private String type;
 
     public Notification() {}
 
-    public Notification(int notificationId, int userId, String message, Timestamp sentAt, boolean read) {
+    public Notification(int notificationId, int userId, String message, Timestamp sentAt, boolean read, String type) {
         this.notificationId = notificationId;
         this.userId = userId;
         this.message = message;
         this.sentAt = sentAt;
         this.read = read;
+        this.type = type;
     }
+
 
     public int getNotificationId() {
         return notificationId;
@@ -60,8 +63,11 @@ public class Notification implements Serializable {
         this.read = read;
     }
 
-    @Override
-    public String toString() {
-        return String.format("Notification: You have a new notification:\nMessage: %s\nSent At: %s", message, sentAt);
+    public String getType() {
+        return type;
+    }
+
+    public void setType(String type) {
+        this.type = type;
     }
 }

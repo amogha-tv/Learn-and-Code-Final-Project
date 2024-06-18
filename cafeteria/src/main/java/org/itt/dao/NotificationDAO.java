@@ -14,26 +14,13 @@ public class NotificationDAO {
     public void addNotification(Notification notification) throws SQLException, ClassNotFoundException {
         Connection connection = DataBaseConnector.getInstance().getConnection();
 
-        String query = "INSERT INTO Notification (userID, message, sentAt) VALUES (?, ?, ?)";
-        try (PreparedStatement statement = connection.prepareStatement(query, PreparedStatement.RETURN_GENERATED_KEYS)) {
+        String query = "INSERT INTO Notification (userID, message, sentAt, `read`, type) VALUES (?, ?, ?, ?, ?)";
+        try (PreparedStatement statement = connection.prepareStatement(query)) {
             statement.setInt(1, notification.getUserId());
             statement.setString(2, notification.getMessage());
             statement.setTimestamp(3, notification.getSentAt());
-            statement.executeUpdate();
-            ResultSet generatedKeys = statement.getGeneratedKeys();
-            if (generatedKeys.next()) {
-                notification.setNotificationId(generatedKeys.getInt(1));
-            }
-        }
-    }
-
-    public void addUserNotification(int userId, int notificationId) throws SQLException, ClassNotFoundException {
-        Connection connection = DataBaseConnector.getInstance().getConnection();
-
-        String query = "INSERT INTO UserNotification (userID, notificationID) VALUES (?, ?)";
-        try (PreparedStatement statement = connection.prepareStatement(query)) {
-            statement.setInt(1, userId);
-            statement.setInt(2, notificationId);
+            statement.setBoolean(4, notification.isRead());
+            statement.setString(5, notification.getType());
             statement.executeUpdate();
         }
     }
@@ -42,9 +29,7 @@ public class NotificationDAO {
         List<Notification> notifications = new ArrayList<>();
         Connection connection = DataBaseConnector.getInstance().getConnection();
 
-        String query = "SELECT n.* FROM Notification n " +
-                "JOIN UserNotification un ON n.notificationID = un.notificationID " +
-                "WHERE un.userID = ? AND un.isRead = FALSE";
+        String query = "SELECT * FROM Notification WHERE userID = ? AND `read` = FALSE AND type IN ('RECOMMENDATION', 'NEW_ITEM', 'AVAILABILITY_CHANGE')";
         try (PreparedStatement statement = connection.prepareStatement(query)) {
             statement.setInt(1, userId);
             try (ResultSet resultSet = statement.executeQuery()) {
@@ -52,8 +37,9 @@ public class NotificationDAO {
                     int notificationId = resultSet.getInt("notificationID");
                     String message = resultSet.getString("message");
                     java.sql.Timestamp sentAt = resultSet.getTimestamp("sentAt");
-                    Notification notification = new Notification(notificationId, userId, message, sentAt, false);
-                    notifications.add(notification);
+                    boolean read = resultSet.getBoolean("read");
+                    String type = resultSet.getString("type");
+                    notifications.add(new Notification(notificationId, userId, message, sentAt, read, type));
                 }
             }
         }
@@ -63,24 +49,23 @@ public class NotificationDAO {
     public void markNotificationsAsRead(int userId) throws SQLException, ClassNotFoundException {
         Connection connection = DataBaseConnector.getInstance().getConnection();
 
-        String query = "UPDATE UserNotification SET isRead = TRUE WHERE userID = ?";
+        String query = "UPDATE Notification SET `read` = TRUE WHERE userID = ?";
         try (PreparedStatement statement = connection.prepareStatement(query)) {
             statement.setInt(1, userId);
             statement.executeUpdate();
         }
     }
 
-    public List<Integer> getAllEmployeeIds() throws SQLException, ClassNotFoundException {
-        List<Integer> employeeIds = new ArrayList<>();
+    public void addNotificationForAllEmployees(Notification notification) throws SQLException, ClassNotFoundException {
         Connection connection = DataBaseConnector.getInstance().getConnection();
 
-        String query = "SELECT userID FROM User WHERE roleID = (SELECT roleID FROM Role WHERE roleName = 'Employee')";
-        try (PreparedStatement statement = connection.prepareStatement(query);
-             ResultSet resultSet = statement.executeQuery()) {
-            while (resultSet.next()) {
-                employeeIds.add(resultSet.getInt("userID"));
-            }
+        String query = "INSERT INTO Notification (userID, message, sentAt, `read`, type) SELECT userID, ?, ?, ?, ? FROM User WHERE roleID = 3";
+        try (PreparedStatement statement = connection.prepareStatement(query)) {
+            statement.setString(1, notification.getMessage());
+            statement.setTimestamp(2, notification.getSentAt());
+            statement.setBoolean(3, notification.isRead());
+            statement.setString(4, notification.getType());
+            statement.executeUpdate();
         }
-        return employeeIds;
     }
 }
