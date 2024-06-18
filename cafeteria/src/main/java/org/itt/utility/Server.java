@@ -10,7 +10,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 public class Server {
-    private static final int PORT = 12345;
+    private static final int PORT = 8080;
     private static final int THREAD_POOL_SIZE = 10;
     private static final List<ObjectOutputStream> clientOutputStreams = new CopyOnWriteArrayList<>();
 

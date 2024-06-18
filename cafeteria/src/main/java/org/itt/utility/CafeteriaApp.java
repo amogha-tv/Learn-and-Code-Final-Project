@@ -32,7 +32,7 @@ public class CafeteriaApp {
         try {
             System.out.print("Enter User ID: ");
             int userId = scanner.nextInt();
-            scanner.nextLine(); // Consume newline
+            scanner.nextLine();
             System.out.print("Enter Password: ");
             String password = scanner.nextLine();
 
@@ -45,18 +45,15 @@ public class CafeteriaApp {
                     int optionIndex = 1;
                     System.out.println("Select an option:");
 
-                    // Common options for all roles
                     System.out.println(optionIndex++ + ". View Menu Items");
                     System.out.println(optionIndex++ + ". View Feedback");
 
-                    // Employee-specific options
                     if (authService.isAuthorized(user, "Employee")) {
                         System.out.println(optionIndex++ + ". View Notifications");
                         System.out.println(optionIndex++ + ". View Recommendations");
                         System.out.println(optionIndex++ + ". Add Feedback");
                     }
 
-                    // Admin-specific options
                     if (authService.isAuthorized(user, "Admin")) {
                         System.out.println(optionIndex++ + ". Add Menu Item");
                         System.out.println(optionIndex++ + ". Update Menu Item");
@@ -64,7 +61,6 @@ public class CafeteriaApp {
                         System.out.println(optionIndex++ + ". Add User");
                     }
 
-                    // Chef-specific options
                     if (authService.isAuthorized(user, "Chef")) {
                         System.out.println(optionIndex++ + ". Roll Out Recommendations");
                         System.out.println(optionIndex++ + ". Generate Feedback Report");
@@ -73,9 +69,8 @@ public class CafeteriaApp {
                     System.out.println("0. Exit");
 
                     int option = scanner.nextInt();
-                    scanner.nextLine(); // Consume newline
+                    scanner.nextLine(); 
 
-                    // Common options for all roles
                     int currentIndex = 1;
 
                     if (option == currentIndex++) {
@@ -140,12 +135,12 @@ public class CafeteriaApp {
     private void addFeedback(User user) throws SQLException, ClassNotFoundException {
         System.out.print("Enter Menu Item ID: ");
         int feedbackMenuItemId = scanner.nextInt();
-        scanner.nextLine(); // Consume newline
+        scanner.nextLine();
         System.out.print("Enter Comment: ");
         String comment = scanner.nextLine();
         System.out.print("Enter Rating: ");
         int rating = scanner.nextInt();
-        scanner.nextLine(); // Consume newline
+        scanner.nextLine();
         System.out.print("Enter Feedback Date (yyyy-mm-dd): ");
         String feedbackDateStr = scanner.nextLine();
         java.sql.Date dateOfFeedback = java.sql.Date.valueOf(feedbackDateStr);
@@ -163,7 +158,7 @@ public class CafeteriaApp {
         BigDecimal price = scanner.nextBigDecimal();
         System.out.print("Enter Availability (true/false): ");
         boolean availability = scanner.nextBoolean();
-        scanner.nextLine(); // Consume newline
+        scanner.nextLine();
         System.out.print("Enter Menu Date (yyyy-mm-dd): ");
         String dateStr = scanner.nextLine();
         java.sql.Date menuDate = java.sql.Date.valueOf(dateStr);
@@ -177,14 +172,14 @@ public class CafeteriaApp {
     private void updateMenuItem(User user) throws SQLException, ClassNotFoundException {
         System.out.print("Enter Menu Item ID to update: ");
         int menuItemId = scanner.nextInt();
-        scanner.nextLine(); // Consume newline
+        scanner.nextLine();
         System.out.print("Enter Menu Item Name: ");
         String name = scanner.nextLine();
         System.out.print("Enter Price: ");
         BigDecimal price = scanner.nextBigDecimal();
         System.out.print("Enter Availability (true/false): ");
         boolean availability = scanner.nextBoolean();
-        scanner.nextLine(); // Consume newline
+        scanner.nextLine();
         System.out.print("Enter Menu Date (yyyy-mm-dd): ");
         String dateStr = scanner.nextLine();
         java.sql.Date menuDate = java.sql.Date.valueOf(dateStr);
@@ -223,7 +218,7 @@ public class CafeteriaApp {
 
         System.out.print("Enter number of items to recommend: ");
         int numberOfItems = scanner.nextInt();
-        scanner.nextLine(); // Consume newline
+        scanner.nextLine();
         System.out.print("Enter Menu Date for recommendations (yyyy-mm-dd): ");
         String dateStr = scanner.nextLine();
         java.sql.Date recommendationDate = java.sql.Date.valueOf(dateStr);
@@ -231,7 +226,7 @@ public class CafeteriaApp {
         for (int i = 0; i < numberOfItems; i++) {
             System.out.print("Enter Menu Item ID to recommend: ");
             int menuItemId = scanner.nextInt();
-            scanner.nextLine(); // Consume newline
+            scanner.nextLine();
             Recommendation recommendation = new Recommendation(0, menuItemId, user.getUserId(), recommendationDate);
             recommendationService.addRecommendation(recommendation);
             menuItemIds.add(menuItemId);

@@ -18,8 +18,6 @@ public class ServerThread implements Runnable {
     public void run() {
         try (ObjectInputStream inputStream = new ObjectInputStream(socket.getInputStream())) {
 
-            // Handle client requests here
-
         } catch (IOException e) {
             e.printStackTrace();
         } finally {
