@@ -12,7 +12,7 @@ public class Client {
 
     public static void main(String[] args) {
         try {
-            socket = new Socket("localhost", 12345);
+            socket = new Socket("localhost", 8080);
             outputStream = new ObjectOutputStream(socket.getOutputStream());
             inputStream = new ObjectInputStream(socket.getInputStream());
 
