@@ -1,7 +1,6 @@
 package org.itt.dao;
 
 import org.itt.model.Orders;
-import org.itt.dao.DataBaseConnector;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -61,5 +60,26 @@ public class OrderDAO {
             }
         }
         return rolledOutItems;
+    }
+
+    public List<Orders> getOrdersByUserId(int userId) throws SQLException, ClassNotFoundException {
+        List<Orders> orders = new ArrayList<>();
+        Connection connection = DataBaseConnector.getInstance().getConnection();
+
+        String query = "SELECT * FROM Orders WHERE userID = ?";
+        try (PreparedStatement statement = connection.prepareStatement(query)) {
+            statement.setInt(1, userId);
+            try (ResultSet resultSet = statement.executeQuery()) {
+                while (resultSet.next()) {
+                    int orderId = resultSet.getInt("orderID");
+                    int menuItemId = resultSet.getInt("menuItemID");
+                    java.sql.Date orderDate = resultSet.getDate("orderDate");
+                    boolean feedbackGiven = resultSet.getBoolean("feedbackGiven");
+                    Orders order = new Orders(orderId, userId, menuItemId, orderDate, feedbackGiven);
+                    orders.add(order);
+                }
+            }
+        }
+        return orders;
     }
 }

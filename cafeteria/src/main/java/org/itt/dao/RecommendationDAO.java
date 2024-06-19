@@ -1,13 +1,8 @@
 package org.itt.dao;
 
 import org.itt.model.Recommendation;
-import org.itt.dao.DataBaseConnector;
 
-import java.sql.Connection;
-import java.sql.Date;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
+import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 

@@ -1,7 +1,6 @@
 package org.itt.dao;
 
 import org.itt.model.Feedback;
-import org.itt.dao.DataBaseConnector;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
