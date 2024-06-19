@@ -1,7 +1,7 @@
 package org.itt.utility;
 
+import org.itt.controller.*;
 import org.itt.model.*;
-import org.itt.service.*;
 
 import java.math.BigDecimal;
 import java.sql.SQLException;
@@ -11,23 +11,23 @@ import java.util.List;
 import java.util.Scanner;
 
 public class CafeteriaApp {
-    private final AuthService authService;
-    private final MenuService menuService;
-    private final FeedbackService feedbackService;
-    private final NotificationService notificationService;
-    private final RecommendationService recommendationService;
+    private final AuthController authController;
+    private final MenuController menuController;
+    private final FeedbackController feedbackController;
+    private final NotificationController notificationController;
+    private final RecommendationController recommendationController;
     private final RecommendationEngine recommendationEngine;
-    private final OrderService orderService;
+    private final OrderController orderController;
     private final Scanner scanner;
 
     public CafeteriaApp() {
-        this.authService = new AuthService();
-        this.menuService = new MenuService();
-        this.feedbackService = new FeedbackService();
-        this.notificationService = new NotificationService();
-        this.recommendationService = new RecommendationService();
+        this.authController = new AuthController();
+        this.menuController = new MenuController();
+        this.feedbackController = new FeedbackController();
+        this.notificationController = new NotificationController();
+        this.recommendationController = new RecommendationController();
         this.recommendationEngine = new RecommendationEngine();
-        this.orderService = new OrderService();
+        this.orderController = new OrderController();
         this.scanner = new Scanner(System.in);
     }
 
@@ -39,22 +39,13 @@ public class CafeteriaApp {
             System.out.print("Enter Password: ");
             String password = scanner.nextLine();
 
-            User user = authService.authenticate(userId, password);
+            User user = authController.authenticate(userId, password);
             if (user != null) {
                 System.out.println("\n*********************************");
-                System.out.println("*********************************");
-                System.out.println("=================================");
-                System.out.println("       WELCOME TO CAFETERIA        ");
-                System.out.println("=================================");
-                System.out.println("*********************************");
-                System.out.println("*********************************");
-                System.out.println("");
-
-                System.out.println("\n*********************************");
-                System.out.println("   Hello, " + user.getName() + " (" + user.getRole() + ")");
+                System.out.println("   Welcome, " + user.getName() + " (" + user.getRole() + ")");
                 System.out.println("*********************************");
 
-                if (authService.isAuthorized(user, "Chef")) {
+                if (authController.isAuthorized(user, "Chef")) {
                     viewTopRatedItems();
                 }
 
@@ -67,7 +58,7 @@ public class CafeteriaApp {
                         System.out.println(optionIndex++ + ". View Menu Items");
                         System.out.println(optionIndex++ + ". View Feedback");
 
-                        if (authService.isAuthorized(user, "Employee")) {
+                        if (authController.isAuthorized(user, "Employee")) {
                             System.out.println(optionIndex++ + ". View Notifications");
                             System.out.println(optionIndex++ + ". View Recommendations");
                             System.out.println(optionIndex++ + ". View Rolled Out Items");
@@ -75,14 +66,14 @@ public class CafeteriaApp {
                             System.out.println(optionIndex++ + ". Add Feedback");
                         }
 
-                        if (authService.isAuthorized(user, "Admin")) {
+                        if (authController.isAuthorized(user, "Admin")) {
                             System.out.println(optionIndex++ + ". Add Menu Item");
                             System.out.println(optionIndex++ + ". Update Menu Item");
                             System.out.println(optionIndex++ + ". Delete Menu Item");
                             System.out.println(optionIndex++ + ". Add User");
                         }
 
-                        if (authService.isAuthorized(user, "Chef")) {
+                        if (authController.isAuthorized(user, "Chef")) {
                             System.out.println(optionIndex++ + ". Roll Out Recommendations");
                             System.out.println(optionIndex++ + ". Generate Feedback Report");
                         }
@@ -100,27 +91,27 @@ public class CafeteriaApp {
                             viewMenuItems();
                         } else if (option == currentIndex++) {
                             viewFeedback();
-                        } else if (authService.isAuthorized(user, "Employee") && option == currentIndex++) {
+                        } else if (authController.isAuthorized(user, "Employee") && option == currentIndex++) {
                             viewUnreadNotifications(user.getUserId());
-                        } else if (authService.isAuthorized(user, "Employee") && option == currentIndex++) {
+                        } else if (authController.isAuthorized(user, "Employee") && option == currentIndex++) {
                             viewRecommendations();
-                        } else if (authService.isAuthorized(user, "Employee") && option == currentIndex++) {
+                        } else if (authController.isAuthorized(user, "Employee") && option == currentIndex++) {
                             viewRolledOutItems();
-                        } else if (authService.isAuthorized(user, "Employee") && option == currentIndex++) {
+                        } else if (authController.isAuthorized(user, "Employee") && option == currentIndex++) {
                             orderItem(user);
-                        } else if (authService.isAuthorized(user, "Employee") && option == currentIndex++) {
+                        } else if (authController.isAuthorized(user, "Employee") && option == currentIndex++) {
                             addFeedback(user);
-                        } else if (authService.isAuthorized(user, "Admin") && option == currentIndex++) {
+                        } else if (authController.isAuthorized(user, "Admin") && option == currentIndex++) {
                             addMenuItem(user);
-                        } else if (authService.isAuthorized(user, "Admin") && option == currentIndex++) {
+                        } else if (authController.isAuthorized(user, "Admin") && option == currentIndex++) {
                             updateMenuItem(user);
-                        } else if (authService.isAuthorized(user, "Admin") && option == currentIndex++) {
+                        } else if (authController.isAuthorized(user, "Admin") && option == currentIndex++) {
                             deleteMenuItem(user);
-                        } else if (authService.isAuthorized(user, "Admin") && option == currentIndex++) {
+                        } else if (authController.isAuthorized(user, "Admin") && option == currentIndex++) {
                             addUser(user);
-                        } else if (authService.isAuthorized(user, "Chef") && option == currentIndex++) {
+                        } else if (authController.isAuthorized(user, "Chef") && option == currentIndex++) {
                             rollOutRecommendations(user);
-                        } else if (authService.isAuthorized(user, "Chef") && option == currentIndex++) {
+                        } else if (authController.isAuthorized(user, "Chef") && option == currentIndex++) {
                             generateFeedbackReport();
                         } else if (option == 0) {
                             System.out.println("Exiting...");
@@ -144,7 +135,7 @@ public class CafeteriaApp {
 
     private void viewMenuItems() {
         try {
-            List<MenuItem> menuItems = menuService.getAllMenuItems();
+            List<MenuItem> menuItems = menuController.getAllMenuItems();
             System.out.println("\n=================================");
             System.out.println("         Menu Items");
             System.out.println("=================================");
@@ -157,7 +148,7 @@ public class CafeteriaApp {
 
     private void viewFeedback() {
         try {
-            List<Feedback> feedbacks = feedbackService.getAllFeedback();
+            List<Feedback> feedbacks = feedbackController.getAllFeedback();
             System.out.println("\n=================================");
             System.out.println("          Feedback");
             System.out.println("=================================");
@@ -170,12 +161,12 @@ public class CafeteriaApp {
 
     private void viewUnreadNotifications(int userId) {
         try {
-            List<Notification> notifications = notificationService.getUnreadNotifications(userId);
+            List<Notification> notifications = notificationController.getUnreadNotifications(userId);
             System.out.println("\n=================================");
             System.out.println("        Unread Notifications");
             System.out.println("=================================");
             displayNotifications(notifications);
-            notificationService.markNotificationsAsRead(userId);
+            notificationController.markNotificationsAsRead(userId);
         } catch (SQLException | ClassNotFoundException e) {
             System.out.println("An error occurred while fetching notifications. Please try again.");
             e.printStackTrace();
@@ -184,7 +175,7 @@ public class CafeteriaApp {
 
     private void viewRecommendations() {
         try {
-            List<Recommendation> recommendations = recommendationService.getAllRecommendations();
+            List<Recommendation> recommendations = recommendationController.getAllRecommendations();
             List<Recommendation> filteredRecommendations = recommendationEngine.getFilteredRecommendations(recommendations);
             System.out.println("\n=================================");
             System.out.println("       Recommendations");
@@ -228,7 +219,7 @@ public class CafeteriaApp {
                     return;
             }
 
-            List<Recommendation> recommendations = recommendationService.getAllRecommendations();
+            List<Recommendation> recommendations = recommendationController.getAllRecommendations();
             List<Recommendation> filteredRecommendations = new ArrayList<>();
             for (Recommendation recommendation : recommendations) {
                 if (recommendation.getMealType().equalsIgnoreCase(mealType)) {
@@ -244,14 +235,14 @@ public class CafeteriaApp {
 
     private void orderItem(User user) {
         try {
-            List<Integer> rolledOutItems = orderService.getRolledOutItems();
+            List<Integer> rolledOutItems = orderController.getRolledOutItems();
             System.out.println("\n=================================");
             System.out.println("         Order Item");
             System.out.println("=================================");
             System.out.print("Enter Menu Item Name to order: ");
             String itemName = scanner.nextLine();
 
-            MenuItem menuItem = menuService.getMenuItemByName(itemName);
+            MenuItem menuItem = menuController.getMenuItemByName(itemName);
             if (menuItem == null || !rolledOutItems.contains(menuItem.getMenuItemId())) {
                 System.out.println("You can only order rolled out items by their name.");
                 return;
@@ -260,8 +251,7 @@ public class CafeteriaApp {
             System.out.print("Enter Order Date (yyyy-mm-dd): ");
             String orderDateStr = scanner.nextLine();
             java.sql.Date orderDate = java.sql.Date.valueOf(orderDateStr);
-            Orders order = new Orders(0, user.getUserId(), menuItem.getMenuItemId(), orderDate, false);
-            orderService.addOrder(order);
+            orderController.addOrder(user.getUserId(), menuItem.getMenuItemId(), orderDate);
             System.out.println("Item ordered successfully.");
         } catch (InputMismatchException e) {
             System.out.println("Invalid input. Please enter valid details.");
@@ -280,13 +270,13 @@ public class CafeteriaApp {
             System.out.print("Enter Menu Item Name: ");
             String itemName = scanner.nextLine();
 
-            MenuItem menuItem = menuService.getMenuItemByName(itemName);
+            MenuItem menuItem = menuController.getMenuItemByName(itemName);
             if (menuItem == null) {
                 System.out.println("Invalid Menu Item Name.");
                 return;
             }
 
-            Orders order = orderService.getOrderForFeedback(user.getUserId(), menuItem.getMenuItemId());
+            Orders order = orderController.getOrderForFeedback(user.getUserId(), menuItem.getMenuItemId());
             if (order == null) {
                 System.out.println("You can only give feedback on items you have ordered and not yet provided feedback for.");
                 return;
@@ -300,11 +290,10 @@ public class CafeteriaApp {
             System.out.print("Enter Feedback Date (yyyy-mm-dd): ");
             String feedbackDateStr = scanner.nextLine();
             java.sql.Date dateOfFeedback = java.sql.Date.valueOf(feedbackDateStr);
-            Feedback feedback = new Feedback(0, user.getUserId(), menuItem.getMenuItemId(), comment, rating, dateOfFeedback, itemName);
-            feedbackService.addFeedback(feedback);
-            orderService.markOrderFeedbackGiven(order.getOrderId());
+            feedbackController.addFeedback(user, menuItem.getMenuItemId(), comment, rating, dateOfFeedback, itemName);
+            orderController.markOrderFeedbackGiven(order.getOrderId());
             Notification notification = new Notification(0, user.getUserId(), "Feedback added for Menu Item: " + itemName, new java.sql.Timestamp(System.currentTimeMillis()), false, "FEEDBACK");
-            notificationService.addNotificationForAllEmployees(notification);
+            notificationController.addNotificationForAllEmployees(notification);
             System.out.println("Feedback added successfully.");
         } catch (InputMismatchException e) {
             System.out.println("Invalid input. Please enter valid details.");
@@ -334,10 +323,9 @@ public class CafeteriaApp {
             System.out.print("Enter Meal Type (BREAKFAST/LUNCH/DINNER/BEVERAGE): ");
             String mealType = scanner.nextLine().toUpperCase();
 
-            MenuItem menuItem = new MenuItem(0, name, price, availability, menuDate, mealType);
-            menuService.addMenuItem(menuItem);
+            menuController.addMenuItem(name, price, availability, menuDate, mealType);
             Notification notification = new Notification(0, user.getUserId(), "Menu Item added: " + name, new java.sql.Timestamp(System.currentTimeMillis()), false, "NEW_ITEM");
-            notificationService.addNotificationForAllEmployees(notification);
+            notificationController.addNotificationForAllEmployees(notification);
             System.out.println("Menu Item added successfully.");
         } catch (InputMismatchException e) {
             System.out.println("Invalid input. Please enter valid details.");
@@ -370,10 +358,9 @@ public class CafeteriaApp {
             System.out.print("Enter Meal Type (BREAKFAST/LUNCH/DINNER/BEVERAGE): ");
             String mealType = scanner.nextLine().toUpperCase();
 
-            MenuItem menuItem = new MenuItem(menuItemId, name, price, availability, menuDate, mealType);
-            menuService.updateMenuItem(menuItem);
+            menuController.updateMenuItem(menuItemId, name, price, availability, menuDate, mealType);
             Notification notification = new Notification(0, user.getUserId(), "Menu Item updated: " + name, new java.sql.Timestamp(System.currentTimeMillis()), false, "AVAILABILITY_CHANGE");
-            notificationService.addNotificationForAllEmployees(notification);
+            notificationController.addNotificationForAllEmployees(notification);
             System.out.println("Menu Item updated successfully.");
         } catch (InputMismatchException e) {
             System.out.println("Invalid input. Please enter valid details.");
@@ -391,9 +378,9 @@ public class CafeteriaApp {
             System.out.println("=================================");
             System.out.print("Enter Menu Item ID to delete: ");
             int menuItemId = scanner.nextInt();
-            menuService.deleteMenuItem(menuItemId);
+            menuController.deleteMenuItem(menuItemId);
             Notification notification = new Notification(0, user.getUserId(), "Menu Item deleted: " + menuItemId, new java.sql.Timestamp(System.currentTimeMillis()), false, "AVAILABILITY_CHANGE");
-            notificationService.addNotificationForAllEmployees(notification);
+            notificationController.addNotificationForAllEmployees(notification);
             System.out.println("Menu Item deleted successfully.");
         } catch (InputMismatchException e) {
             System.out.println("Invalid input. Please enter a valid Menu Item ID.");
@@ -416,9 +403,9 @@ public class CafeteriaApp {
             System.out.print("Enter Role (Admin/Chef/Employee): ");
             String role = scanner.nextLine();
             User newUser = new User(0, username, role, userPassword);
-            authService.addUser(newUser);
+            authController.addUser(newUser);
             Notification notification = new Notification(0, user.getUserId(), "New user added: " + username, new java.sql.Timestamp(System.currentTimeMillis()), false, "NEW_USER");
-            notificationService.addNotificationForAllEmployees(notification);
+            notificationController.addNotificationForAllEmployees(notification);
             System.out.println("User added successfully.");
         } catch (InputMismatchException e) {
             System.out.println("Invalid input. Please enter valid details.");
@@ -431,7 +418,7 @@ public class CafeteriaApp {
 
     private void rollOutRecommendations(User user) {
         try {
-            recommendationService.clearRecommendations();
+            recommendationController.clearRecommendations();
 
             System.out.println("\n=================================");
             System.out.println("  Roll Out Recommendations");
@@ -449,12 +436,11 @@ public class CafeteriaApp {
                 scanner.nextLine();
                 System.out.print("Enter Meal Type (BREAKFAST/LUNCH/DINNER/BEVERAGE): ");
                 String mealType = scanner.nextLine().toUpperCase();
-                Recommendation recommendation = new Recommendation(0, menuItemId, user.getUserId(), recommendationDate, "", "", mealType);
-                recommendationService.addRecommendation(recommendation);
+                recommendationController.addRecommendation(menuItemId, user.getUserId(), recommendationDate, mealType);
                 menuItemIds.add(menuItemId);
             }
             Notification notification = new Notification(0, user.getUserId(), "Recommendations added for the next day", new java.sql.Timestamp(System.currentTimeMillis()), false, "RECOMMENDATION");
-            notificationService.addNotificationForAllEmployees(notification);
+            notificationController.addNotificationForAllEmployees(notification);
             System.out.println("Recommendations processed successfully.");
         } catch (InputMismatchException e) {
             System.out.println("Invalid input. Please enter valid details.");
@@ -467,7 +453,7 @@ public class CafeteriaApp {
 
     private void generateFeedbackReport() {
         try {
-            List<Feedback> allFeedback = feedbackService.getAllFeedback();
+            List<Feedback> allFeedback = feedbackController.getAllFeedback();
             System.out.println("\n=================================");
             System.out.println("      Monthly Feedback Report");
             System.out.println("=================================");
@@ -515,7 +501,7 @@ public class CafeteriaApp {
         System.out.println("--------------------------------------------------------------------------------");
         for (MenuItem menuItem : menuItems) {
             try {
-                double averageRating = feedbackService.getAverageRating(menuItem.getMenuItemId());
+                double averageRating = feedbackController.getAverageRating(menuItem.getMenuItemId());
                 System.out.printf("%-5d %-20s %-10.2f %-15s %-10s %-10s %-10.2f%n", menuItem.getMenuItemId(), menuItem.getName(), menuItem.getPrice(), menuItem.isAvailability(), menuItem.getMenuDate(), menuItem.getMealType(), averageRating);
             } catch (SQLException | ClassNotFoundException e) {
                 e.printStackTrace();
@@ -525,7 +511,7 @@ public class CafeteriaApp {
 
     private void viewTopRatedItems() {
         try {
-            List<MenuItem> topRatedItems = recommendationService.getTopRatedItems();
+            List<MenuItem> topRatedItems = recommendationController.getTopRatedItems();
             System.out.println("\n=================================");
             System.out.println("       Top Rated Items");
             System.out.println("=================================");
