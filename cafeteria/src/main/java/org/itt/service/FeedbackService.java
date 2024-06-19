@@ -13,15 +13,15 @@ public class FeedbackService {
         this.feedbackDAO = new FeedbackDAO();
     }
 
-    public List<Feedback> getAllFeedback() throws SQLException, ClassNotFoundException {
-        return feedbackDAO.getAllFeedback();
-    }
-
     public void addFeedback(Feedback feedback) throws SQLException, ClassNotFoundException {
         feedbackDAO.addFeedback(feedback);
     }
 
-    public List<Feedback> getFeedbackForMenuItem(int menuItemId) throws SQLException, ClassNotFoundException {
-        return feedbackDAO.getFeedbackForMenuItem(menuItemId);
+    public List<Feedback> getAllFeedback() throws SQLException, ClassNotFoundException {
+        return feedbackDAO.getAllFeedback();
+    }
+
+    public double getAverageRating(int menuItemId) throws SQLException, ClassNotFoundException {
+        return feedbackDAO.getAverageRating(menuItemId);
     }
 }

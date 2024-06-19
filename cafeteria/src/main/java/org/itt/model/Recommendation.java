@@ -1,32 +1,24 @@
 package org.itt.model;
 
-import java.io.Serializable;
 import java.sql.Date;
 
-public class Recommendation implements Serializable {
+public class Recommendation {
     private int recommendationId;
     private int menuItemId;
     private int recommendedBy;
     private Date recommendationDate;
     private String itemName;
     private String recommenderName;
+    private String mealType;
 
-    public Recommendation() {}
-
-    public Recommendation(int recommendationId, int menuItemId, int recommendedBy, Date recommendationDate) {
-        this.recommendationId = recommendationId;
-        this.menuItemId = menuItemId;
-        this.recommendedBy = recommendedBy;
-        this.recommendationDate = recommendationDate;
-    }
-
-    public Recommendation(int recommendationId, int menuItemId, int recommendedBy, Date recommendationDate, String itemName, String recommenderName) {
+    public Recommendation(int recommendationId, int menuItemId, int recommendedBy, Date recommendationDate, String itemName, String recommenderName, String mealType) {
         this.recommendationId = recommendationId;
         this.menuItemId = menuItemId;
         this.recommendedBy = recommendedBy;
         this.recommendationDate = recommendationDate;
         this.itemName = itemName;
         this.recommenderName = recommenderName;
+        this.mealType = mealType;
     }
 
     public int getRecommendationId() {
@@ -75,5 +67,26 @@ public class Recommendation implements Serializable {
 
     public void setRecommenderName(String recommenderName) {
         this.recommenderName = recommenderName;
+    }
+
+    public String getMealType() {
+        return mealType;
+    }
+
+    public void setMealType(String mealType) {
+        this.mealType = mealType;
+    }
+
+    @Override
+    public String toString() {
+        return "Recommendation{" +
+                "recommendationId=" + recommendationId +
+                ", menuItemId=" + menuItemId +
+                ", recommendedBy=" + recommendedBy +
+                ", recommendationDate=" + recommendationDate +
+                ", itemName='" + itemName + '\'' +
+                ", recommenderName='" + recommenderName + '\'' +
+                ", mealType='" + mealType + '\'' +
+                '}';
     }
 }

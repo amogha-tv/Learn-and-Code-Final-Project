@@ -1,51 +1,28 @@
 package org.itt.dao;
 
 import org.itt.model.MenuItem;
+import org.itt.dao.DataBaseConnector;
 
 import java.math.BigDecimal;
 import java.sql.Connection;
+import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 
 public class MenuItemDAO {
-
-    public List<MenuItem> getAllMenuItems() throws SQLException, ClassNotFoundException {
-        List<MenuItem> menuItems = new ArrayList<>();
-        Connection connection = DataBaseConnector.getInstance().getConnection();
-
-        String query = "SELECT * FROM MenuItem";
-        try (PreparedStatement statement = connection.prepareStatement(query);
-             ResultSet resultSet = statement.executeQuery()) {
-
-            while (resultSet.next()) {
-                int menuItemId = resultSet.getInt("menuItemID");
-                String name = resultSet.getString("name");
-                BigDecimal price = resultSet.getBigDecimal("price");
-                boolean availability = resultSet.getBoolean("availability");
-                Date menuDate = resultSet.getDate("menuDate");
-
-                MenuItem menuItem = new MenuItem(menuItemId, name, price, availability, menuDate);
-                menuItems.add(menuItem);
-            }
-        }
-
-        return menuItems;
-    }
-
     public void addMenuItem(MenuItem menuItem) throws SQLException, ClassNotFoundException {
         Connection connection = DataBaseConnector.getInstance().getConnection();
 
-        String query = "INSERT INTO MenuItem (name, price, availability, menuDate) VALUES (?, ?, ?, ?)";
+        String query = "INSERT INTO MenuItem (name, price, availability, menuDate, mealType) VALUES (?, ?, ?, ?, ?)";
         try (PreparedStatement statement = connection.prepareStatement(query)) {
             statement.setString(1, menuItem.getName());
             statement.setBigDecimal(2, menuItem.getPrice());
             statement.setBoolean(3, menuItem.isAvailability());
-            statement.setDate(4, new java.sql.Date(menuItem.getMenuDate().getTime()));
-
+            statement.setDate(4, menuItem.getMenuDate());
+            statement.setString(5, menuItem.getMealType());
             statement.executeUpdate();
         }
     }
@@ -53,14 +30,14 @@ public class MenuItemDAO {
     public void updateMenuItem(MenuItem menuItem) throws SQLException, ClassNotFoundException {
         Connection connection = DataBaseConnector.getInstance().getConnection();
 
-        String query = "UPDATE MenuItem SET name = ?, price = ?, availability = ?, menuDate = ? WHERE menuItemID = ?";
+        String query = "UPDATE MenuItem SET name = ?, price = ?, availability = ?, menuDate = ?, mealType = ? WHERE menuItemID = ?";
         try (PreparedStatement statement = connection.prepareStatement(query)) {
             statement.setString(1, menuItem.getName());
             statement.setBigDecimal(2, menuItem.getPrice());
             statement.setBoolean(3, menuItem.isAvailability());
-            statement.setDate(4, new java.sql.Date(menuItem.getMenuDate().getTime()));
-            statement.setInt(5, menuItem.getMenuItemId());
-
+            statement.setDate(4, menuItem.getMenuDate());
+            statement.setString(5, menuItem.getMealType());
+            statement.setInt(6, menuItem.getMenuItemId());
             statement.executeUpdate();
         }
     }
@@ -73,5 +50,66 @@ public class MenuItemDAO {
             statement.setInt(1, menuItemId);
             statement.executeUpdate();
         }
+    }
+
+    public MenuItem getMenuItem(int menuItemId) throws SQLException, ClassNotFoundException {
+        Connection connection = DataBaseConnector.getInstance().getConnection();
+
+        String query = "SELECT * FROM MenuItem WHERE menuItemID = ?";
+        try (PreparedStatement statement = connection.prepareStatement(query)) {
+            statement.setInt(1, menuItemId);
+            try (ResultSet resultSet = statement.executeQuery()) {
+                if (resultSet.next()) {
+                    String name = resultSet.getString("name");
+                    BigDecimal price = resultSet.getBigDecimal("price");
+                    boolean availability = resultSet.getBoolean("availability");
+                    Date menuDate = resultSet.getDate("menuDate");
+                    String mealType = resultSet.getString("mealType");
+                    return new MenuItem(menuItemId, name, price, availability, menuDate, mealType);
+                }
+            }
+        }
+        return null;
+    }
+
+    public MenuItem getMenuItemByName(String name) throws SQLException, ClassNotFoundException {
+        Connection connection = DataBaseConnector.getInstance().getConnection();
+
+        String query = "SELECT * FROM MenuItem WHERE name = ?";
+        try (PreparedStatement statement = connection.prepareStatement(query)) {
+            statement.setString(1, name);
+            try (ResultSet resultSet = statement.executeQuery()) {
+                if (resultSet.next()) {
+                    int menuItemId = resultSet.getInt("menuItemID");
+                    BigDecimal price = resultSet.getBigDecimal("price");
+                    boolean availability = resultSet.getBoolean("availability");
+                    Date menuDate = resultSet.getDate("menuDate");
+                    String mealType = resultSet.getString("mealType");
+                    return new MenuItem(menuItemId, name, price, availability, menuDate, mealType);
+                }
+            }
+        }
+        return null;
+    }
+
+    public List<MenuItem> getAllMenuItems() throws SQLException, ClassNotFoundException {
+        List<MenuItem> menuItems = new ArrayList<>();
+        Connection connection = DataBaseConnector.getInstance().getConnection();
+
+        String query = "SELECT * FROM MenuItem";
+        try (PreparedStatement statement = connection.prepareStatement(query);
+             ResultSet resultSet = statement.executeQuery()) {
+            while (resultSet.next()) {
+                int menuItemId = resultSet.getInt("menuItemID");
+                String name = resultSet.getString("name");
+                BigDecimal price = resultSet.getBigDecimal("price");
+                boolean availability = resultSet.getBoolean("availability");
+                Date menuDate = resultSet.getDate("menuDate");
+                String mealType = resultSet.getString("mealType");
+                MenuItem menuItem = new MenuItem(menuItemId, name, price, availability, menuDate, mealType);
+                menuItems.add(menuItem);
+            }
+        }
+        return menuItems;
     }
 }

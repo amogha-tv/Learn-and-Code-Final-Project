@@ -12,6 +12,9 @@ public class Feedback implements Serializable {
     private Date dateOfFeedback;
     private String itemName;
 
+    public Feedback() {
+    }
+
     public Feedback(int feedbackId, int userId, int menuItemId, String comment, int rating, Date dateOfFeedback) {
         this.feedbackId = feedbackId;
         this.userId = userId;
@@ -19,6 +22,16 @@ public class Feedback implements Serializable {
         this.comment = comment;
         this.rating = rating;
         this.dateOfFeedback = dateOfFeedback;
+    }
+
+    public Feedback(int feedbackId, int userId, int menuItemId, String comment, int rating, Date dateOfFeedback, String itemName) {
+        this.feedbackId = feedbackId;
+        this.userId = userId;
+        this.menuItemId = menuItemId;
+        this.comment = comment;
+        this.rating = rating;
+        this.dateOfFeedback = dateOfFeedback;
+        this.itemName = itemName;
     }
 
     public int getFeedbackId() {

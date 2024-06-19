@@ -1,27 +1,23 @@
 package org.itt.model;
 
-import java.io.Serializable;
 import java.math.BigDecimal;
-import java.util.Date;
+import java.sql.Date;
 
-public class MenuItem implements Serializable {
-    private static final long serialVersionUID = 1L;
-
+public class MenuItem {
     private int menuItemId;
     private String name;
     private BigDecimal price;
     private boolean availability;
     private Date menuDate;
+    private String mealType;
 
-    public MenuItem() {
-    }
-
-    public MenuItem(int menuItemId, String name, BigDecimal price, boolean availability, Date menuDate) {
+    public MenuItem(int menuItemId, String name, BigDecimal price, boolean availability, Date menuDate, String mealType) {
         this.menuItemId = menuItemId;
         this.name = name;
         this.price = price;
         this.availability = availability;
         this.menuDate = menuDate;
+        this.mealType = mealType;
     }
 
     public int getMenuItemId() {
@@ -64,6 +60,14 @@ public class MenuItem implements Serializable {
         this.menuDate = menuDate;
     }
 
+    public String getMealType() {
+        return mealType;
+    }
+
+    public void setMealType(String mealType) {
+        this.mealType = mealType;
+    }
+
     @Override
     public String toString() {
         return "MenuItem{" +
@@ -72,6 +76,7 @@ public class MenuItem implements Serializable {
                 ", price=" + price +
                 ", availability=" + availability +
                 ", menuDate=" + menuDate +
+                ", mealType='" + mealType + '\'' +
                 '}';
     }
 }
