@@ -41,8 +41,18 @@ public class CafeteriaApp {
 
             User user = authService.authenticate(userId, password);
             if (user != null) {
-                System.out.println("Authenticated user: " + user.getName());
-                System.out.println("Role: " + user.getRole());
+                System.out.println("\n*********************************");
+                System.out.println("*********************************");
+                System.out.println("=================================");
+                System.out.println("       WELCOME TO CAFETERIA        ");
+                System.out.println("=================================");
+                System.out.println("*********************************");
+                System.out.println("*********************************");
+                System.out.println("");
+
+                System.out.println("\n*********************************");
+                System.out.println("   Hello, " + user.getName() + " (" + user.getRole() + ")");
+                System.out.println("*********************************");
 
                 if (authService.isAuthorized(user, "Chef")) {
                     viewTopRatedItems();
@@ -51,8 +61,9 @@ public class CafeteriaApp {
                 while (true) {
                     try {
                         int optionIndex = 1;
-                        System.out.println("Select an option:");
-
+                        System.out.println("\n=================================");
+                        System.out.println("          Main Menu");
+                        System.out.println("=================================");
                         System.out.println(optionIndex++ + ". View Menu Items");
                         System.out.println(optionIndex++ + ". View Feedback");
 
@@ -77,6 +88,8 @@ public class CafeteriaApp {
                         }
 
                         System.out.println("0. Exit");
+                        System.out.println("=================================");
+                        System.out.print("Select an option: ");
 
                         int option = scanner.nextInt();
                         scanner.nextLine();
@@ -132,6 +145,9 @@ public class CafeteriaApp {
     private void viewMenuItems() {
         try {
             List<MenuItem> menuItems = menuService.getAllMenuItems();
+            System.out.println("\n=================================");
+            System.out.println("         Menu Items");
+            System.out.println("=================================");
             displayMenuItems(menuItems);
         } catch (SQLException | ClassNotFoundException e) {
             System.out.println("An error occurred while fetching menu items. Please try again.");
@@ -142,6 +158,9 @@ public class CafeteriaApp {
     private void viewFeedback() {
         try {
             List<Feedback> feedbacks = feedbackService.getAllFeedback();
+            System.out.println("\n=================================");
+            System.out.println("          Feedback");
+            System.out.println("=================================");
             displayFeedbacks(feedbacks);
         } catch (SQLException | ClassNotFoundException e) {
             System.out.println("An error occurred while fetching feedback. Please try again.");
@@ -152,6 +171,9 @@ public class CafeteriaApp {
     private void viewUnreadNotifications(int userId) {
         try {
             List<Notification> notifications = notificationService.getUnreadNotifications(userId);
+            System.out.println("\n=================================");
+            System.out.println("        Unread Notifications");
+            System.out.println("=================================");
             displayNotifications(notifications);
             notificationService.markNotificationsAsRead(userId);
         } catch (SQLException | ClassNotFoundException e) {
@@ -164,6 +186,9 @@ public class CafeteriaApp {
         try {
             List<Recommendation> recommendations = recommendationService.getAllRecommendations();
             List<Recommendation> filteredRecommendations = recommendationEngine.getFilteredRecommendations(recommendations);
+            System.out.println("\n=================================");
+            System.out.println("       Recommendations");
+            System.out.println("=================================");
             displayRecommendations(filteredRecommendations);
         } catch (SQLException | ClassNotFoundException e) {
             System.out.println("An error occurred while fetching recommendations. Please try again.");
@@ -173,6 +198,9 @@ public class CafeteriaApp {
 
     private void viewRolledOutItems() {
         try {
+            System.out.println("\n=================================");
+            System.out.println("        Rolled Out Items");
+            System.out.println("=================================");
             System.out.println("Select a meal type to view rolled out items:");
             System.out.println("1. Breakfast");
             System.out.println("2. Lunch");
@@ -217,6 +245,9 @@ public class CafeteriaApp {
     private void orderItem(User user) {
         try {
             List<Integer> rolledOutItems = orderService.getRolledOutItems();
+            System.out.println("\n=================================");
+            System.out.println("         Order Item");
+            System.out.println("=================================");
             System.out.print("Enter Menu Item Name to order: ");
             String itemName = scanner.nextLine();
 
@@ -243,6 +274,9 @@ public class CafeteriaApp {
 
     private void addFeedback(User user) {
         try {
+            System.out.println("\n=================================");
+            System.out.println("         Add Feedback");
+            System.out.println("=================================");
             System.out.print("Enter Menu Item Name: ");
             String itemName = scanner.nextLine();
 
@@ -271,7 +305,7 @@ public class CafeteriaApp {
             orderService.markOrderFeedbackGiven(order.getOrderId());
             Notification notification = new Notification(0, user.getUserId(), "Feedback added for Menu Item: " + itemName, new java.sql.Timestamp(System.currentTimeMillis()), false, "FEEDBACK");
             notificationService.addNotificationForAllEmployees(notification);
-            System.out.println("Feedback added.");
+            System.out.println("Feedback added successfully.");
         } catch (InputMismatchException e) {
             System.out.println("Invalid input. Please enter valid details.");
             scanner.nextLine();
@@ -283,6 +317,9 @@ public class CafeteriaApp {
 
     private void addMenuItem(User user) {
         try {
+            System.out.println("\n=================================");
+            System.out.println("         Add Menu Item");
+            System.out.println("=================================");
             System.out.print("Enter Menu Item Name: ");
             String name = scanner.nextLine();
             System.out.print("Enter Price: ");
@@ -301,7 +338,7 @@ public class CafeteriaApp {
             menuService.addMenuItem(menuItem);
             Notification notification = new Notification(0, user.getUserId(), "Menu Item added: " + name, new java.sql.Timestamp(System.currentTimeMillis()), false, "NEW_ITEM");
             notificationService.addNotificationForAllEmployees(notification);
-            System.out.println("Menu Item added.");
+            System.out.println("Menu Item added successfully.");
         } catch (InputMismatchException e) {
             System.out.println("Invalid input. Please enter valid details.");
             scanner.nextLine();
@@ -313,6 +350,9 @@ public class CafeteriaApp {
 
     private void updateMenuItem(User user) {
         try {
+            System.out.println("\n=================================");
+            System.out.println("       Update Menu Item");
+            System.out.println("=================================");
             System.out.print("Enter Menu Item ID to update: ");
             int menuItemId = scanner.nextInt();
             scanner.nextLine();
@@ -334,7 +374,7 @@ public class CafeteriaApp {
             menuService.updateMenuItem(menuItem);
             Notification notification = new Notification(0, user.getUserId(), "Menu Item updated: " + name, new java.sql.Timestamp(System.currentTimeMillis()), false, "AVAILABILITY_CHANGE");
             notificationService.addNotificationForAllEmployees(notification);
-            System.out.println("Menu Item updated.");
+            System.out.println("Menu Item updated successfully.");
         } catch (InputMismatchException e) {
             System.out.println("Invalid input. Please enter valid details.");
             scanner.nextLine();
@@ -346,12 +386,15 @@ public class CafeteriaApp {
 
     private void deleteMenuItem(User user) {
         try {
+            System.out.println("\n=================================");
+            System.out.println("       Delete Menu Item");
+            System.out.println("=================================");
             System.out.print("Enter Menu Item ID to delete: ");
             int menuItemId = scanner.nextInt();
             menuService.deleteMenuItem(menuItemId);
             Notification notification = new Notification(0, user.getUserId(), "Menu Item deleted: " + menuItemId, new java.sql.Timestamp(System.currentTimeMillis()), false, "AVAILABILITY_CHANGE");
             notificationService.addNotificationForAllEmployees(notification);
-            System.out.println("Menu Item deleted.");
+            System.out.println("Menu Item deleted successfully.");
         } catch (InputMismatchException e) {
             System.out.println("Invalid input. Please enter a valid Menu Item ID.");
             scanner.nextLine();
@@ -363,6 +406,9 @@ public class CafeteriaApp {
 
     private void addUser(User user) {
         try {
+            System.out.println("\n=================================");
+            System.out.println("         Add User");
+            System.out.println("=================================");
             System.out.print("Enter Username: ");
             String username = scanner.nextLine();
             System.out.print("Enter Password: ");
@@ -373,7 +419,7 @@ public class CafeteriaApp {
             authService.addUser(newUser);
             Notification notification = new Notification(0, user.getUserId(), "New user added: " + username, new java.sql.Timestamp(System.currentTimeMillis()), false, "NEW_USER");
             notificationService.addNotificationForAllEmployees(notification);
-            System.out.println("User added.");
+            System.out.println("User added successfully.");
         } catch (InputMismatchException e) {
             System.out.println("Invalid input. Please enter valid details.");
             scanner.nextLine();
@@ -387,6 +433,9 @@ public class CafeteriaApp {
         try {
             recommendationService.clearRecommendations();
 
+            System.out.println("\n=================================");
+            System.out.println("  Roll Out Recommendations");
+            System.out.println("=================================");
             System.out.print("Enter number of items to recommend: ");
             int numberOfItems = scanner.nextInt();
             scanner.nextLine();
@@ -406,7 +455,7 @@ public class CafeteriaApp {
             }
             Notification notification = new Notification(0, user.getUserId(), "Recommendations added for the next day", new java.sql.Timestamp(System.currentTimeMillis()), false, "RECOMMENDATION");
             notificationService.addNotificationForAllEmployees(notification);
-            System.out.println("Recommendations processed.");
+            System.out.println("Recommendations processed successfully.");
         } catch (InputMismatchException e) {
             System.out.println("Invalid input. Please enter valid details.");
             scanner.nextLine();
@@ -419,7 +468,9 @@ public class CafeteriaApp {
     private void generateFeedbackReport() {
         try {
             List<Feedback> allFeedback = feedbackService.getAllFeedback();
-            System.out.println("Monthly Feedback Report:");
+            System.out.println("\n=================================");
+            System.out.println("      Monthly Feedback Report");
+            System.out.println("=================================");
             displayFeedbacks(allFeedback);
         } catch (SQLException | ClassNotFoundException e) {
             System.out.println("An error occurred while generating the feedback report. Please try again.");
@@ -475,7 +526,9 @@ public class CafeteriaApp {
     private void viewTopRatedItems() {
         try {
             List<MenuItem> topRatedItems = recommendationService.getTopRatedItems();
-            System.out.println("Top Rated Items:");
+            System.out.println("\n=================================");
+            System.out.println("       Top Rated Items");
+            System.out.println("=================================");
             displayMenuItemsWithRatings(topRatedItems);
         } catch (SQLException | ClassNotFoundException e) {
             System.out.println("An error occurred while fetching top-rated items. Please try again.");
