@@ -28,4 +28,8 @@ public class OrderService {
     public List<Integer> getRolledOutItems() throws SQLException, ClassNotFoundException {
         return orderDAO.getRolledOutItems();
     }
+
+    public List<Orders> getOrdersByUserId(int userId) throws SQLException, ClassNotFoundException {
+        return orderDAO.getOrdersByUserId(userId);
+    }
 }
