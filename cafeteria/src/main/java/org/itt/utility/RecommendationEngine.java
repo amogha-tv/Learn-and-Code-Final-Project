@@ -22,19 +22,32 @@ public class RecommendationEngine {
         Map<Integer, List<Feedback>> feedbackByItem = new HashMap<>();
 
         for (Feedback feedback : feedbackService.getAllFeedback()) {
-            feedbackByItem.computeIfAbsent(feedback.getMenuItemId(), k -> new ArrayList<>()).add(feedback);
+            int menuItemId = feedback.getMenuItemId();
+            if (!feedbackByItem.containsKey(menuItemId)) {
+                feedbackByItem.put(menuItemId, new ArrayList<Feedback>());
+            }
+            feedbackByItem.get(menuItemId).add(feedback);
         }
 
         for (Recommendation recommendation : recommendations) {
-            List<Feedback> feedbacks = feedbackByItem.get(recommendation.getMenuItemId());
+            int menuItemId = recommendation.getMenuItemId();
+            List<Feedback> feedbacks = feedbackByItem.get(menuItemId);
             if (feedbacks == null || feedbacks.isEmpty()) {
                 continue;
             }
 
-            double averageRating = feedbacks.stream().mapToInt(Feedback::getRating).average().orElse(0);
-            long positiveSentiments = feedbacks.stream()
-                    .filter(feedback -> "positive".equals(SentimentAnalysis.analyzeSentiment(feedback.getComment())))
-                    .count();
+            int totalRating = 0;
+            for (Feedback feedback : feedbacks) {
+                totalRating += feedback.getRating();
+            }
+            double averageRating = (double) totalRating / feedbacks.size();
+
+            int positiveSentiments = 0;
+            for (Feedback feedback : feedbacks) {
+                if ("positive".equals(SentimentAnalysis.analyzeSentiment(feedback.getComment()))) {
+                    positiveSentiments++;
+                }
+            }
 
             if (averageRating > 3 && positiveSentiments >= (feedbacks.size() / 2)) {
                 filteredRecommendations.add(recommendation);
