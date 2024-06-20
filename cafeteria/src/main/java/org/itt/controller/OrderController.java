@@ -1,11 +1,11 @@
 package org.itt.controller;
 
 import org.itt.model.Orders;
-import org.itt.model.User;
 import org.itt.service.OrderService;
 
 import java.sql.SQLException;
 import java.util.List;
+import java.util.Map;
 
 public class OrderController {
     private final OrderService orderService;
@@ -29,5 +29,9 @@ public class OrderController {
 
     public void markOrderFeedbackGiven(int orderId) throws SQLException, ClassNotFoundException {
         orderService.markOrderFeedbackGiven(orderId);
+    }
+
+    public Map<String, Integer> getOrderCountsForItems() throws SQLException, ClassNotFoundException {
+        return orderService.getOrderCountsForItems();
     }
 }

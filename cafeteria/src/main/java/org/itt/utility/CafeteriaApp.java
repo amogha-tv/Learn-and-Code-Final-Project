@@ -8,6 +8,7 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.InputMismatchException;
 import java.util.List;
+import java.util.Map;
 import java.util.Scanner;
 
 public class CafeteriaApp {
@@ -35,12 +36,13 @@ public class CafeteriaApp {
         try {
             System.out.print("Enter User ID: ");
             int userId = scanner.nextInt();
-            scanner.nextLine();
+            scanner.nextLine(); 
             System.out.print("Enter Password: ");
             String password = scanner.nextLine();
 
             User user = authController.authenticate(userId, password);
             if (user != null) {
+                LoggerUtility.log("User " + user.getName() + " (ID: " + user.getUserId() + ") logged in.");
                 System.out.println("\n*********************************");
                 System.out.println("   Welcome, " + user.getName() + " (" + user.getRole() + ")");
                 System.out.println("*********************************");
@@ -76,6 +78,7 @@ public class CafeteriaApp {
                         if (authController.isAuthorized(user, "Chef")) {
                             System.out.println(optionIndex++ + ". Roll Out Recommendations");
                             System.out.println(optionIndex++ + ". Generate Feedback Report");
+                            System.out.println(optionIndex++ + ". View Orders for Tomorrow");
                         }
 
                         System.out.println("0. Exit");
@@ -83,7 +86,7 @@ public class CafeteriaApp {
                         System.out.print("Select an option: ");
 
                         int option = scanner.nextInt();
-                        scanner.nextLine();
+                        scanner.nextLine(); 
 
                         int currentIndex = 1;
 
@@ -113,15 +116,18 @@ public class CafeteriaApp {
                             rollOutRecommendations(user);
                         } else if (authController.isAuthorized(user, "Chef") && option == currentIndex++) {
                             generateFeedbackReport();
+                        } else if (authController.isAuthorized(user, "Chef") && option == currentIndex++) {
+                            viewOrdersForTomorrow();
                         } else if (option == 0) {
                             System.out.println("Exiting...");
+                            LoggerUtility.log("User " + user.getName() + " (ID: " + user.getUserId() + ") logged out.");
                             break;
                         } else {
                             System.out.println("Invalid option. Please select a valid option.");
                         }
                     } catch (InputMismatchException e) {
                         System.out.println("Invalid input. Please enter a valid option.");
-                        scanner.nextLine();
+                        scanner.nextLine(); 
                     }
                 }
             } else {
@@ -198,7 +204,7 @@ public class CafeteriaApp {
             System.out.println("3. Dinner");
             System.out.println("4. Beverage");
             int mealTypeOption = scanner.nextInt();
-            scanner.nextLine();
+            scanner.nextLine(); 
 
             String mealType;
             switch (mealTypeOption) {
@@ -255,7 +261,7 @@ public class CafeteriaApp {
             System.out.println("Item ordered successfully.");
         } catch (InputMismatchException e) {
             System.out.println("Invalid input. Please enter valid details.");
-            scanner.nextLine();
+            scanner.nextLine(); 
         } catch (SQLException | ClassNotFoundException e) {
             System.out.println("An error occurred while ordering the item. Please try again.");
             e.printStackTrace();
@@ -286,7 +292,7 @@ public class CafeteriaApp {
             String comment = scanner.nextLine();
             System.out.print("Enter Rating: ");
             int rating = scanner.nextInt();
-            scanner.nextLine();
+            scanner.nextLine(); 
             System.out.print("Enter Feedback Date (yyyy-mm-dd): ");
             String feedbackDateStr = scanner.nextLine();
             java.sql.Date dateOfFeedback = java.sql.Date.valueOf(feedbackDateStr);
@@ -297,7 +303,7 @@ public class CafeteriaApp {
             System.out.println("Feedback added successfully.");
         } catch (InputMismatchException e) {
             System.out.println("Invalid input. Please enter valid details.");
-            scanner.nextLine();
+            scanner.nextLine(); 
         } catch (SQLException | ClassNotFoundException e) {
             System.out.println("An error occurred while adding feedback. Please try again.");
             e.printStackTrace();
@@ -315,7 +321,7 @@ public class CafeteriaApp {
             BigDecimal price = scanner.nextBigDecimal();
             System.out.print("Enter Availability (true/false): ");
             boolean availability = scanner.nextBoolean();
-            scanner.nextLine();
+            scanner.nextLine(); 
             System.out.print("Enter Menu Date (yyyy-mm-dd): ");
             String dateStr = scanner.nextLine();
             java.sql.Date menuDate = java.sql.Date.valueOf(dateStr);
@@ -329,7 +335,7 @@ public class CafeteriaApp {
             System.out.println("Menu Item added successfully.");
         } catch (InputMismatchException e) {
             System.out.println("Invalid input. Please enter valid details.");
-            scanner.nextLine();
+            scanner.nextLine(); 
         } catch (SQLException | ClassNotFoundException e) {
             System.out.println("An error occurred while adding the menu item. Please try again.");
             e.printStackTrace();
@@ -343,14 +349,14 @@ public class CafeteriaApp {
             System.out.println("=================================");
             System.out.print("Enter Menu Item ID to update: ");
             int menuItemId = scanner.nextInt();
-            scanner.nextLine();
+            scanner.nextLine(); 
             System.out.print("Enter Menu Item Name: ");
             String name = scanner.nextLine();
             System.out.print("Enter Price: ");
             BigDecimal price = scanner.nextBigDecimal();
             System.out.print("Enter Availability (true/false): ");
             boolean availability = scanner.nextBoolean();
-            scanner.nextLine();
+            scanner.nextLine(); 
             System.out.print("Enter Menu Date (yyyy-mm-dd): ");
             String dateStr = scanner.nextLine();
             java.sql.Date menuDate = java.sql.Date.valueOf(dateStr);
@@ -364,7 +370,7 @@ public class CafeteriaApp {
             System.out.println("Menu Item updated successfully.");
         } catch (InputMismatchException e) {
             System.out.println("Invalid input. Please enter valid details.");
-            scanner.nextLine();
+            scanner.nextLine(); 
         } catch (SQLException | ClassNotFoundException e) {
             System.out.println("An error occurred while updating the menu item. Please try again.");
             e.printStackTrace();
@@ -384,7 +390,7 @@ public class CafeteriaApp {
             System.out.println("Menu Item deleted successfully.");
         } catch (InputMismatchException e) {
             System.out.println("Invalid input. Please enter a valid Menu Item ID.");
-            scanner.nextLine();
+            scanner.nextLine(); 
         } catch (SQLException | ClassNotFoundException e) {
             System.out.println("An error occurred while deleting the menu item. Please try again.");
             e.printStackTrace();
@@ -409,7 +415,7 @@ public class CafeteriaApp {
             System.out.println("User added successfully.");
         } catch (InputMismatchException e) {
             System.out.println("Invalid input. Please enter valid details.");
-            scanner.nextLine();
+            scanner.nextLine(); 
         } catch (SQLException | ClassNotFoundException e) {
             System.out.println("An error occurred while adding the user. Please try again.");
             e.printStackTrace();
@@ -419,13 +425,14 @@ public class CafeteriaApp {
     private void rollOutRecommendations(User user) {
         try {
             recommendationController.clearRecommendations();
+            recommendationController.clearOrders();
 
             System.out.println("\n=================================");
             System.out.println("  Roll Out Recommendations");
             System.out.println("=================================");
             System.out.print("Enter number of items to recommend: ");
             int numberOfItems = scanner.nextInt();
-            scanner.nextLine();
+            scanner.nextLine(); 
             System.out.print("Enter Menu Date for recommendations (yyyy-mm-dd): ");
             String dateStr = scanner.nextLine();
             java.sql.Date recommendationDate = java.sql.Date.valueOf(dateStr);
@@ -433,7 +440,7 @@ public class CafeteriaApp {
             for (int i = 0; i < numberOfItems; i++) {
                 System.out.print("Enter Menu Item ID to recommend: ");
                 int menuItemId = scanner.nextInt();
-                scanner.nextLine();
+                scanner.nextLine(); 
                 System.out.print("Enter Meal Type (BREAKFAST/LUNCH/DINNER/BEVERAGE): ");
                 String mealType = scanner.nextLine().toUpperCase();
                 recommendationController.addRecommendation(menuItemId, user.getUserId(), recommendationDate, mealType);
@@ -444,7 +451,7 @@ public class CafeteriaApp {
             System.out.println("Recommendations processed successfully.");
         } catch (InputMismatchException e) {
             System.out.println("Invalid input. Please enter valid details.");
-            scanner.nextLine();
+            scanner.nextLine(); 
         } catch (SQLException | ClassNotFoundException e) {
             System.out.println("An error occurred while rolling out recommendations. Please try again.");
             e.printStackTrace();
@@ -460,6 +467,19 @@ public class CafeteriaApp {
             displayFeedbacks(allFeedback);
         } catch (SQLException | ClassNotFoundException e) {
             System.out.println("An error occurred while generating the feedback report. Please try again.");
+            e.printStackTrace();
+        }
+    }
+
+    private void viewOrdersForTomorrow() {
+        try {
+            Map<String, Integer> orderCounts = orderController.getOrderCountsForItems();
+            System.out.println("\n=================================");
+            System.out.println("    Orders for Tomorrow");
+            System.out.println("=================================");
+            displayOrderCounts(orderCounts);
+        } catch (SQLException | ClassNotFoundException e) {
+            System.out.println("An error occurred while fetching orders for tomorrow. Please try again.");
             e.printStackTrace();
         }
     }
@@ -506,6 +526,14 @@ public class CafeteriaApp {
             } catch (SQLException | ClassNotFoundException e) {
                 e.printStackTrace();
             }
+        }
+    }
+
+    private void displayOrderCounts(Map<String, Integer> orderCounts) {
+        System.out.printf("%-20s %-10s%n", "Item Name", "Order Count");
+        System.out.println("-----------------------------------");
+        for (Map.Entry<String, Integer> entry : orderCounts.entrySet()) {
+            System.out.printf("%-20s %-10d%n", entry.getKey(), entry.getValue());
         }
     }
 
