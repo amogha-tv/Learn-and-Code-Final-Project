@@ -5,11 +5,8 @@ import org.itt.model.*;
 
 import java.math.BigDecimal;
 import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.InputMismatchException;
-import java.util.List;
-import java.util.Map;
-import java.util.Scanner;
+import java.util.*;
+import java.util.stream.Collectors;
 
 public class CafeteriaApp {
     private final AuthController authController;
@@ -19,6 +16,7 @@ public class CafeteriaApp {
     private final RecommendationController recommendationController;
     private final RecommendationEngine recommendationEngine;
     private final OrderController orderController;
+    private final ProfileController profileController;
     private final Scanner scanner;
 
     public CafeteriaApp() {
@@ -29,6 +27,7 @@ public class CafeteriaApp {
         this.recommendationController = new RecommendationController();
         this.recommendationEngine = new RecommendationEngine();
         this.orderController = new OrderController();
+        this.profileController = new ProfileController();
         this.scanner = new Scanner(System.in);
     }
 
@@ -36,7 +35,7 @@ public class CafeteriaApp {
         try {
             System.out.print("Enter User ID: ");
             int userId = scanner.nextInt();
-            scanner.nextLine(); 
+            scanner.nextLine();
             System.out.print("Enter Password: ");
             String password = scanner.nextLine();
 
@@ -66,6 +65,7 @@ public class CafeteriaApp {
                             System.out.println(optionIndex++ + ". View Rolled Out Items");
                             System.out.println(optionIndex++ + ". Order Item");
                             System.out.println(optionIndex++ + ". Add Feedback");
+                            System.out.println(optionIndex++ + ". Update Profile");
                         }
 
                         if (authController.isAuthorized(user, "Admin")) {
@@ -86,7 +86,7 @@ public class CafeteriaApp {
                         System.out.print("Select an option: ");
 
                         int option = scanner.nextInt();
-                        scanner.nextLine(); 
+                        scanner.nextLine();
 
                         int currentIndex = 1;
 
@@ -97,13 +97,15 @@ public class CafeteriaApp {
                         } else if (authController.isAuthorized(user, "Employee") && option == currentIndex++) {
                             viewUnreadNotifications(user.getUserId());
                         } else if (authController.isAuthorized(user, "Employee") && option == currentIndex++) {
-                            viewRecommendations();
+                            viewRecommendations(user.getUserId());
                         } else if (authController.isAuthorized(user, "Employee") && option == currentIndex++) {
-                            viewRolledOutItems();
+                            viewRolledOutItems(user.getUserId());
                         } else if (authController.isAuthorized(user, "Employee") && option == currentIndex++) {
                             orderItem(user);
                         } else if (authController.isAuthorized(user, "Employee") && option == currentIndex++) {
                             addFeedback(user);
+                        } else if (authController.isAuthorized(user, "Employee") && option == currentIndex++) {
+                            updateProfile(user);
                         } else if (authController.isAuthorized(user, "Admin") && option == currentIndex++) {
                             addMenuItem(user);
                         } else if (authController.isAuthorized(user, "Admin") && option == currentIndex++) {
@@ -127,7 +129,7 @@ public class CafeteriaApp {
                         }
                     } catch (InputMismatchException e) {
                         System.out.println("Invalid input. Please enter a valid option.");
-                        scanner.nextLine(); 
+                        scanner.nextLine();
                     }
                 }
             } else {
@@ -179,10 +181,21 @@ public class CafeteriaApp {
         }
     }
 
-    private void viewRecommendations() {
+    private void viewRecommendations(int userId) {
         try {
             List<Recommendation> recommendations = recommendationController.getAllRecommendations();
-            List<Recommendation> filteredRecommendations = recommendationEngine.getFilteredRecommendations(recommendations);
+            Profile profile = profileController.getProfileByUserId(userId);
+            List<Recommendation> filteredRecommendations = recommendations.stream()
+                    .sorted(Comparator.comparingInt(r -> {
+                        try {
+                            return getPreferenceScore(profile, menuController.getMenuItemById(r.getMenuItemId()));
+                        } catch (SQLException e) {
+                            throw new RuntimeException(e);
+                        } catch (ClassNotFoundException e) {
+                            throw new RuntimeException(e);
+                        }
+                    }))
+                    .collect(Collectors.toList());
             System.out.println("\n=================================");
             System.out.println("       Recommendations");
             System.out.println("=================================");
@@ -193,7 +206,7 @@ public class CafeteriaApp {
         }
     }
 
-    private void viewRolledOutItems() {
+    private void viewRolledOutItems(int userId) {
         try {
             System.out.println("\n=================================");
             System.out.println("        Rolled Out Items");
@@ -204,7 +217,7 @@ public class CafeteriaApp {
             System.out.println("3. Dinner");
             System.out.println("4. Beverage");
             int mealTypeOption = scanner.nextInt();
-            scanner.nextLine(); 
+            scanner.nextLine();
 
             String mealType;
             switch (mealTypeOption) {
@@ -226,12 +239,19 @@ public class CafeteriaApp {
             }
 
             List<Recommendation> recommendations = recommendationController.getAllRecommendations();
-            List<Recommendation> filteredRecommendations = new ArrayList<>();
-            for (Recommendation recommendation : recommendations) {
-                if (recommendation.getMealType().equalsIgnoreCase(mealType)) {
-                    filteredRecommendations.add(recommendation);
-                }
-            }
+            Profile profile = profileController.getProfileByUserId(userId);
+            List<Recommendation> filteredRecommendations = recommendations.stream()
+                    .filter(r -> r.getMealType().equalsIgnoreCase(mealType))
+                    .sorted(Comparator.comparingInt(r -> {
+                        try {
+                            return getPreferenceScore(profile, menuController.getMenuItemById(r.getMenuItemId()));
+                        } catch (SQLException e) {
+                            throw new RuntimeException(e);
+                        } catch (ClassNotFoundException e) {
+                            throw new RuntimeException(e);
+                        }
+                    }))
+                    .collect(Collectors.toList());
             displayRecommendations(filteredRecommendations);
         } catch (SQLException | ClassNotFoundException e) {
             System.out.println("An error occurred while fetching rolled out items. Please try again.");
@@ -261,7 +281,7 @@ public class CafeteriaApp {
             System.out.println("Item ordered successfully.");
         } catch (InputMismatchException e) {
             System.out.println("Invalid input. Please enter valid details.");
-            scanner.nextLine(); 
+            scanner.nextLine();
         } catch (SQLException | ClassNotFoundException e) {
             System.out.println("An error occurred while ordering the item. Please try again.");
             e.printStackTrace();
@@ -292,7 +312,7 @@ public class CafeteriaApp {
             String comment = scanner.nextLine();
             System.out.print("Enter Rating: ");
             int rating = scanner.nextInt();
-            scanner.nextLine(); 
+            scanner.nextLine();
             System.out.print("Enter Feedback Date (yyyy-mm-dd): ");
             String feedbackDateStr = scanner.nextLine();
             java.sql.Date dateOfFeedback = java.sql.Date.valueOf(feedbackDateStr);
@@ -303,9 +323,52 @@ public class CafeteriaApp {
             System.out.println("Feedback added successfully.");
         } catch (InputMismatchException e) {
             System.out.println("Invalid input. Please enter valid details.");
-            scanner.nextLine(); 
+            scanner.nextLine();
         } catch (SQLException | ClassNotFoundException e) {
             System.out.println("An error occurred while adding feedback. Please try again.");
+            e.printStackTrace();
+        }
+    }
+
+    private void updateProfile(User user) {
+        try {
+            Profile profile = new Profile();
+            profile.setUserId(user.getUserId());
+
+            System.out.println("\n=================================");
+            System.out.println("         Update Profile");
+            System.out.println("=================================");
+            System.out.println("Please answer these questions to know your preferences:");
+            System.out.println("1) Please select one:");
+            System.out.println("- Vegetarian");
+            System.out.println("- Non Vegetarian");
+            System.out.println("- Eggetarian");
+            profile.setFoodPreference(scanner.nextLine());
+
+            System.out.println("2) Please select your spice level:");
+            System.out.println("- High");
+            System.out.println("- Medium");
+            System.out.println("- Low");
+            profile.setSpiceLevel(scanner.nextLine());
+
+            System.out.println("3) What do you prefer most?");
+            System.out.println("- North Indian");
+            System.out.println("- South Indian");
+            System.out.println("- Other");
+            profile.setCuisinePreference(scanner.nextLine());
+
+            System.out.println("4) Do you have a sweet tooth?");
+            System.out.println("- Yes");
+            System.out.println("- No");
+            profile.setSweetTooth(scanner.nextLine().equalsIgnoreCase("Yes"));
+
+            profileController.addOrUpdateProfile(profile);
+            System.out.println("Profile updated successfully.");
+        } catch (InputMismatchException e) {
+            System.out.println("Invalid input. Please enter valid details.");
+            scanner.nextLine();
+        } catch (SQLException | ClassNotFoundException e) {
+            System.out.println("An error occurred while updating the profile. Please try again.");
             e.printStackTrace();
         }
     }
@@ -321,7 +384,7 @@ public class CafeteriaApp {
             BigDecimal price = scanner.nextBigDecimal();
             System.out.print("Enter Availability (true/false): ");
             boolean availability = scanner.nextBoolean();
-            scanner.nextLine(); 
+            scanner.nextLine();
             System.out.print("Enter Menu Date (yyyy-mm-dd): ");
             String dateStr = scanner.nextLine();
             java.sql.Date menuDate = java.sql.Date.valueOf(dateStr);
@@ -329,13 +392,23 @@ public class CafeteriaApp {
             System.out.print("Enter Meal Type (BREAKFAST/LUNCH/DINNER/BEVERAGE): ");
             String mealType = scanner.nextLine().toUpperCase();
 
-            menuController.addMenuItem(name, price, availability, menuDate, mealType);
+            System.out.print("Is the item sweet? (true/false): ");
+            boolean isSweet = scanner.nextBoolean();
+
+            System.out.print("Is the item spicy? (true/false): ");
+            boolean isSpicy = scanner.nextBoolean();
+
+            scanner.nextLine();
+            System.out.print("Enter Dietary Category (Vegetarian/Non Vegetarian/Eggetarian): ");
+            String vegType = scanner.nextLine();
+
+            menuController.addMenuItem(name, price, availability, menuDate, mealType, isSweet, isSpicy, vegType);
             Notification notification = new Notification(0, user.getUserId(), "Menu Item added: " + name, new java.sql.Timestamp(System.currentTimeMillis()), false, "NEW_ITEM");
             notificationController.addNotificationForAllEmployees(notification);
             System.out.println("Menu Item added successfully.");
         } catch (InputMismatchException e) {
             System.out.println("Invalid input. Please enter valid details.");
-            scanner.nextLine(); 
+            scanner.nextLine();
         } catch (SQLException | ClassNotFoundException e) {
             System.out.println("An error occurred while adding the menu item. Please try again.");
             e.printStackTrace();
@@ -349,14 +422,14 @@ public class CafeteriaApp {
             System.out.println("=================================");
             System.out.print("Enter Menu Item ID to update: ");
             int menuItemId = scanner.nextInt();
-            scanner.nextLine(); 
+            scanner.nextLine();
             System.out.print("Enter Menu Item Name: ");
             String name = scanner.nextLine();
             System.out.print("Enter Price: ");
             BigDecimal price = scanner.nextBigDecimal();
             System.out.print("Enter Availability (true/false): ");
             boolean availability = scanner.nextBoolean();
-            scanner.nextLine(); 
+            scanner.nextLine();
             System.out.print("Enter Menu Date (yyyy-mm-dd): ");
             String dateStr = scanner.nextLine();
             java.sql.Date menuDate = java.sql.Date.valueOf(dateStr);
@@ -364,13 +437,23 @@ public class CafeteriaApp {
             System.out.print("Enter Meal Type (BREAKFAST/LUNCH/DINNER/BEVERAGE): ");
             String mealType = scanner.nextLine().toUpperCase();
 
-            menuController.updateMenuItem(menuItemId, name, price, availability, menuDate, mealType);
+            System.out.print("Is the item sweet? (true/false): ");
+            boolean isSweet = scanner.nextBoolean();
+
+            System.out.print("Is the item spicy? (true/false): ");
+            boolean isSpicy = scanner.nextBoolean();
+
+            scanner.nextLine();
+            System.out.print("Enter Dietary Category (Vegetarian/Non Vegetarian/Eggetarian): ");
+            String vegType = scanner.nextLine();
+
+            menuController.updateMenuItem(menuItemId, name, price, availability, menuDate, mealType, isSweet, isSpicy, vegType);
             Notification notification = new Notification(0, user.getUserId(), "Menu Item updated: " + name, new java.sql.Timestamp(System.currentTimeMillis()), false, "AVAILABILITY_CHANGE");
             notificationController.addNotificationForAllEmployees(notification);
             System.out.println("Menu Item updated successfully.");
         } catch (InputMismatchException e) {
             System.out.println("Invalid input. Please enter valid details.");
-            scanner.nextLine(); 
+            scanner.nextLine();
         } catch (SQLException | ClassNotFoundException e) {
             System.out.println("An error occurred while updating the menu item. Please try again.");
             e.printStackTrace();
@@ -390,7 +473,7 @@ public class CafeteriaApp {
             System.out.println("Menu Item deleted successfully.");
         } catch (InputMismatchException e) {
             System.out.println("Invalid input. Please enter a valid Menu Item ID.");
-            scanner.nextLine(); 
+            scanner.nextLine();
         } catch (SQLException | ClassNotFoundException e) {
             System.out.println("An error occurred while deleting the menu item. Please try again.");
             e.printStackTrace();
@@ -415,7 +498,7 @@ public class CafeteriaApp {
             System.out.println("User added successfully.");
         } catch (InputMismatchException e) {
             System.out.println("Invalid input. Please enter valid details.");
-            scanner.nextLine(); 
+            scanner.nextLine();
         } catch (SQLException | ClassNotFoundException e) {
             System.out.println("An error occurred while adding the user. Please try again.");
             e.printStackTrace();
@@ -425,14 +508,14 @@ public class CafeteriaApp {
     private void rollOutRecommendations(User user) {
         try {
             recommendationController.clearRecommendations();
-            recommendationController.clearOrders();
+            orderController.clearOrders();
 
             System.out.println("\n=================================");
             System.out.println("  Roll Out Recommendations");
             System.out.println("=================================");
             System.out.print("Enter number of items to recommend: ");
             int numberOfItems = scanner.nextInt();
-            scanner.nextLine(); 
+            scanner.nextLine();
             System.out.print("Enter Menu Date for recommendations (yyyy-mm-dd): ");
             String dateStr = scanner.nextLine();
             java.sql.Date recommendationDate = java.sql.Date.valueOf(dateStr);
@@ -440,7 +523,7 @@ public class CafeteriaApp {
             for (int i = 0; i < numberOfItems; i++) {
                 System.out.print("Enter Menu Item ID to recommend: ");
                 int menuItemId = scanner.nextInt();
-                scanner.nextLine(); 
+                scanner.nextLine();
                 System.out.print("Enter Meal Type (BREAKFAST/LUNCH/DINNER/BEVERAGE): ");
                 String mealType = scanner.nextLine().toUpperCase();
                 recommendationController.addRecommendation(menuItemId, user.getUserId(), recommendationDate, mealType);
@@ -451,7 +534,7 @@ public class CafeteriaApp {
             System.out.println("Recommendations processed successfully.");
         } catch (InputMismatchException e) {
             System.out.println("Invalid input. Please enter valid details.");
-            scanner.nextLine(); 
+            scanner.nextLine();
         } catch (SQLException | ClassNotFoundException e) {
             System.out.println("An error occurred while rolling out recommendations. Please try again.");
             e.printStackTrace();
@@ -549,4 +632,49 @@ public class CafeteriaApp {
             e.printStackTrace();
         }
     }
+
+    private int getPreferenceScore(Profile profile, MenuItem menuItem) {
+        if (profile == null || menuItem == null) {
+            return 0;
+        }
+
+        int score = 0;
+
+        if (profile.getFoodPreference().equalsIgnoreCase("Vegetarian")) {
+            if ("Vegetarian".equalsIgnoreCase(menuItem.getVegType())) {
+                score += 20;
+            }
+        } else if (profile.getFoodPreference().equalsIgnoreCase("Non Vegetarian")) {
+            if ("Non Vegetarian".equalsIgnoreCase(menuItem.getVegType())) {
+                score += 20;
+            }
+        } else if (profile.getFoodPreference().equalsIgnoreCase("Eggetarian")) {
+            if ("Eggetarian".equalsIgnoreCase(menuItem.getVegType()) || "Vegetarian".equalsIgnoreCase(menuItem.getVegType())) {
+                score += 20;
+            }
+        }
+
+        if (profile.getSpiceLevel().equalsIgnoreCase("High") && menuItem.isSpicy()) {
+            score += 5;
+        } else if (profile.getSpiceLevel().equalsIgnoreCase("Medium")) {
+            score += 3;
+        } else if (profile.getSpiceLevel().equalsIgnoreCase("Low") && !menuItem.isSpicy()) {
+            score += 1;
+        }
+
+        if (profile.getCuisinePreference().equalsIgnoreCase("North Indian") && menuItem.getName().toLowerCase().contains("paneer")) {
+            score += 7;
+        } else if (profile.getCuisinePreference().equalsIgnoreCase("South Indian") && menuItem.getName().toLowerCase().contains("dosa")) {
+            score += 7;
+        } else if (profile.getCuisinePreference().equalsIgnoreCase("Other")) {
+            score += 2;
+        }
+
+        if (profile.isSweetTooth() && menuItem.isSweet()) {
+            score += 8;
+        }
+
+        return score;
+    }
 }
+

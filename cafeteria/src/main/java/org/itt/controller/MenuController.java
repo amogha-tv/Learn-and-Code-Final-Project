@@ -14,25 +14,27 @@ public class MenuController {
         this.menuService = new MenuService();
     }
 
-    public void addMenuItem(String name, BigDecimal price, boolean availability, java.sql.Date menuDate, String mealType) throws SQLException, ClassNotFoundException {
-        MenuItem menuItem = new MenuItem(0, name, price, availability, menuDate, mealType);
-        menuService.addMenuItem(menuItem);
+    public List<MenuItem> getAllMenuItems() throws SQLException, ClassNotFoundException {
+        return menuService.getAllMenuItems();
     }
 
-    public void updateMenuItem(int menuItemId, String name, BigDecimal price, boolean availability, java.sql.Date menuDate, String mealType) throws SQLException, ClassNotFoundException {
-        MenuItem menuItem = new MenuItem(menuItemId, name, price, availability, menuDate, mealType);
-        menuService.updateMenuItem(menuItem);
+    public void addMenuItem(String name, BigDecimal price, boolean availability, java.sql.Date menuDate, String mealType, boolean isSweet, boolean isSpicy, String vegType) throws SQLException, ClassNotFoundException {
+        menuService.addMenuItem(name, price, availability, menuDate, mealType, isSweet, isSpicy, vegType);
+    }
+
+    public void updateMenuItem(int menuItemId, String name, BigDecimal price, boolean availability, java.sql.Date menuDate, String mealType, boolean isSweet, boolean isSpicy, String vegType) throws SQLException, ClassNotFoundException {
+        menuService.updateMenuItem(menuItemId, name, price, availability, menuDate, mealType, isSweet, isSpicy, vegType);
     }
 
     public void deleteMenuItem(int menuItemId) throws SQLException, ClassNotFoundException {
         menuService.deleteMenuItem(menuItemId);
     }
 
-    public List<MenuItem> getAllMenuItems() throws SQLException, ClassNotFoundException {
-        return menuService.getAllMenuItems();
+    public MenuItem getMenuItemByName(String name) throws SQLException, ClassNotFoundException {
+        return menuService.getMenuItemByName(name);
     }
 
-    public MenuItem getMenuItemByName(String itemName) throws SQLException, ClassNotFoundException {
-        return menuService.getMenuItemByName(itemName);
+    public MenuItem getMenuItemById(int menuItemId) throws SQLException, ClassNotFoundException {
+        return menuService.getMenuItemById(menuItemId);
     }
 }

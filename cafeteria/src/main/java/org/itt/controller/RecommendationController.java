@@ -37,7 +37,4 @@ public class RecommendationController {
         return recommendationService.getTopRatedItems();
     }
 
-    public void clearOrders() throws SQLException, ClassNotFoundException {
-        orderService.clearOrders();
-    }
 }

@@ -10,14 +10,23 @@ public class MenuItem {
     private boolean availability;
     private Date menuDate;
     private String mealType;
+    private boolean isSweet;
+    private boolean isSpicy;
+    private String vegType;
 
-    public MenuItem(int menuItemId, String name, BigDecimal price, boolean availability, Date menuDate, String mealType) {
+    public MenuItem() {
+    }
+
+    public MenuItem(int menuItemId, String name, BigDecimal price, boolean availability, Date menuDate, String mealType, boolean isSweet, boolean isSpicy, String vegType) {
         this.menuItemId = menuItemId;
         this.name = name;
         this.price = price;
         this.availability = availability;
         this.menuDate = menuDate;
         this.mealType = mealType;
+        this.isSweet = isSweet;
+        this.isSpicy = isSpicy;
+        this.vegType = vegType;
     }
 
     public int getMenuItemId() {
@@ -68,15 +77,27 @@ public class MenuItem {
         this.mealType = mealType;
     }
 
-    @Override
-    public String toString() {
-        return "MenuItem{" +
-                "menuItemId=" + menuItemId +
-                ", name='" + name + '\'' +
-                ", price=" + price +
-                ", availability=" + availability +
-                ", menuDate=" + menuDate +
-                ", mealType='" + mealType + '\'' +
-                '}';
+    public boolean isSweet() {
+        return isSweet;
+    }
+
+    public void setSweet(boolean sweet) {
+        isSweet = sweet;
+    }
+
+    public boolean isSpicy() {
+        return isSpicy;
+    }
+
+    public void setSpicy(boolean spicy) {
+        isSpicy = spicy;
+    }
+
+    public String getVegType() {
+        return vegType;
+    }
+
+    public void setVegType(String vegType) {
+        this.vegType = vegType;
     }
 }

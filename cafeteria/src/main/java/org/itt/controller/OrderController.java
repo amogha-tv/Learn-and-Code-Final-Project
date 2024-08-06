@@ -34,4 +34,8 @@ public class OrderController {
     public Map<String, Integer> getOrderCountsForItems() throws SQLException, ClassNotFoundException {
         return orderService.getOrderCountsForItems();
     }
+
+    public void clearOrders() throws SQLException, ClassNotFoundException {
+        orderService.clearOrders();
+    }
 }
