@@ -3,23 +3,23 @@ package org.itt.model;
 import java.io.Serializable;
 import java.sql.Date;
 
-public class Orders implements Serializable {
+public class Order implements Serializable {
     private int orderId;
     private int userId;
     private int menuItemId;
     private Date orderDate;
     private boolean feedbackGiven;
 
-    public Orders() {}
+    public Order() {}
 
-    public Orders(int orderId, int userId, int menuItemId, Date orderDate) {
+    public Order(int orderId, int userId, int menuItemId, Date orderDate) {
         this.orderId = orderId;
         this.userId = userId;
         this.menuItemId = menuItemId;
         this.orderDate = orderDate;
     }
 
-    public Orders(int orderId, int userId, int menuItemId, Date orderDate, boolean feedbackGiven) {
+    public Order(int orderId, int userId, int menuItemId, Date orderDate, boolean feedbackGiven) {
         this.orderId = orderId;
         this.userId = userId;
         this.menuItemId = menuItemId;

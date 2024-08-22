@@ -1,7 +1,7 @@
 package org.itt.service;
 
 import org.itt.dao.OrderDAO;
-import org.itt.model.Orders;
+import org.itt.model.Order;
 
 import java.sql.SQLException;
 import java.util.List;
@@ -14,7 +14,7 @@ public class OrderService {
         this.orderDAO = new OrderDAO();
     }
 
-    public void addOrder(Orders order) throws SQLException, ClassNotFoundException {
+    public void addOrder(Order order) throws SQLException, ClassNotFoundException {
         orderDAO.addOrder(order);
     }
 
@@ -22,7 +22,7 @@ public class OrderService {
         return orderDAO.getRolledOutItems();
     }
 
-    public Orders getOrderForFeedback(int userId, int menuItemId) throws SQLException, ClassNotFoundException {
+    public Order getOrderForFeedback(int userId, int menuItemId) throws SQLException, ClassNotFoundException {
         return orderDAO.getOrderForFeedback(userId, menuItemId);
     }
 
@@ -30,7 +30,7 @@ public class OrderService {
         orderDAO.markOrderFeedbackGiven(orderId);
     }
 
-    public List<Orders> getOrdersByUserId(int userId) throws SQLException, ClassNotFoundException {
+    public List<Order> getOrdersByUserId(int userId) throws SQLException, ClassNotFoundException {
         return orderDAO.getOrdersByUserId(userId);
     }
 

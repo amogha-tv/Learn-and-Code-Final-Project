@@ -7,12 +7,16 @@ import java.util.HashSet;
 import java.util.Set;
 
 public class SentimentAnalysis {
+
+    private static final String POSITIVE_WORDS_FILE = "/positive_words.txt";
+    private static final String NEGATIVE_WORDS_FILE = "/negative_words.txt";
+
     private static final Set<String> positiveWords = new HashSet<>();
     private static final Set<String> negativeWords = new HashSet<>();
 
     static {
-        loadWords("/positive_words.txt", positiveWords);
-        loadWords("/negative_words.txt", negativeWords);
+        loadWords(POSITIVE_WORDS_FILE, positiveWords);
+        loadWords(NEGATIVE_WORDS_FILE, negativeWords);
     }
 
     private static void loadWords(String fileName, Set<String> words) {

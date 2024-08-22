@@ -302,7 +302,7 @@ public class CafeteriaApp {
                 return;
             }
 
-            Orders order = orderController.getOrderForFeedback(user.getUserId(), menuItem.getMenuItemId());
+            Order order = orderController.getOrderForFeedback(user.getUserId(), menuItem.getMenuItemId());
             if (order == null) {
                 System.out.println("You can only give feedback on items you have ordered and not yet provided feedback for.");
                 return;

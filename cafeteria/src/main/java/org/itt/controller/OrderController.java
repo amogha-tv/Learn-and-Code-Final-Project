@@ -1,6 +1,6 @@
 package org.itt.controller;
 
-import org.itt.model.Orders;
+import org.itt.model.Order;
 import org.itt.service.OrderService;
 
 import java.sql.SQLException;
@@ -15,7 +15,7 @@ public class OrderController {
     }
 
     public void addOrder(int userId, int menuItemId, java.sql.Date orderDate) throws SQLException, ClassNotFoundException {
-        Orders order = new Orders(0, userId, menuItemId, orderDate, false);
+        Order order = new Order(0, userId, menuItemId, orderDate, false);
         orderService.addOrder(order);
     }
 
@@ -23,7 +23,7 @@ public class OrderController {
         return orderService.getRolledOutItems();
     }
 
-    public Orders getOrderForFeedback(int userId, int menuItemId) throws SQLException, ClassNotFoundException {
+    public Order getOrderForFeedback(int userId, int menuItemId) throws SQLException, ClassNotFoundException {
         return orderService.getOrderForFeedback(userId, menuItemId);
     }
 
